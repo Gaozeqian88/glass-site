@@ -2,15 +2,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>高泽乾 · 玻璃艺术</title><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/RGBELoader.js"></script><style>
+<title>高泽乾 · 玻璃艺术</title><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{
   font-family:"Inter",sans-serif;
   background:#000;
   color:#fff;
-  overflow:hidden;
 }
 
+/* 顶部 */
 header{
   position:fixed;
   top:0;
@@ -26,9 +26,15 @@ header{
   letter-spacing:4px;
 }
 
+/* 3D区域 */
+.hero{
+  height:100vh;
+  position:relative;
+}
+
 #canvas3d{
   width:100%;
-  height:100vh;
+  height:100%;
 }
 
 .overlay{
@@ -37,106 +43,163 @@ header{
   left:50%;
   transform:translate(-50%,-50%);
   text-align:center;
-  pointer-events:none;
 }
 
 .overlay h1{
   font-family:"Playfair Display";
   font-size:64px;
-  letter-spacing:8px;
 }
 
-.overlay p{
-  margin-top:10px;
-  color:#aaa;
+/* 作品区 */
+.section{
+  padding:120px 80px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:40px;
+  margin-top:60px;
+}
+
+.card{
+  background:#111;
+  padding:40px;
+  cursor:pointer;
+  transition:0.4s;
+}
+
+.card:hover{
+  transform:translateY(-10px);
+  background:#222;
+}
+
+.card h3{
+  font-family:"Playfair Display";
+}
+
+/* 弹窗 */
+.modal{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:#000;
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:200;
+}
+
+.modal-content{
+  width:80%;
+  height:80%;
+}
+
+.close{
+  position:absolute;
+  top:40px;
+  right:60px;
+  cursor:pointer;
 }
 </style></head><body><header>
   <div class="logo">GAO ZEQIAN</div>
-</header><div id="canvas3d"></div><div class="overlay">
-  <h1>GLASS ART</h1>
-  <p>Drag to explore</p >
+</header><!-- 3D主视觉 --><section class="hero">
+  <div id="canvas3d"></div>
+  <div class="overlay">
+    <h1>GLASS ART</h1>
+    <p>Scroll to explore</p >
+  </div>
+</section><!-- 作品列表 --><section class="section">
+  <h2>COLLECTION</h2>  <div class="grid">
+    <div class="card" onclick="openModal()">
+      <h3>Series 01</h3>
+      <p>Core Form</p >
+    </div><div class="card" onclick="openModal()">
+  <h3>Series 02</h3>
+  <p>Light Study</p >
+</div>
+
+<div class="card" onclick="openModal()">
+  <h3>Series 03</h3>
+  <p>Reflection</p >
+</div>
+
+  </div>
+</section><!-- 弹窗 --><div class="modal" id="modal">
+  <div class="close" onclick="closeModal()">X</div>
+  <div class="modal-content" id="modalCanvas"></div>
 </div><script>
+// ===== 主3D =====
 const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,1000);
+const renderer = new THREE.WebGLRenderer({antialias:true,alpha:true});
 
-const camera = new THREE.PerspectiveCamera(
-  60,
-  window.innerWidth/window.innerHeight,
-  0.1,
-  1000
-);
-
-const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.physicallyCorrectLights = true;
-renderer.outputEncoding = THREE.sRGBEncoding;
-
+renderer.setSize(window.innerWidth,window.innerHeight);
 document.getElementById("canvas3d").appendChild(renderer.domElement);
 
-// HDR环境（高级感核心）
-new THREE.RGBELoader()
-  .setPath("https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/")
-  .load("studio_small_09_1k.hdr", function(texture){
-    texture.mapping = THREE.EquirectangularReflectionMapping;
-    scene.environment = texture;
-  });
+const light = new THREE.PointLight(0xffffff,2);
+light.position.set(5,5,5);
+scene.add(light);
 
-// 灯光
-const light1 = new THREE.PointLight(0xffffff, 2);
-light1.position.set(5,5,5);
-scene.add(light1);
-
-const light2 = new THREE.PointLight(0xffffff, 1.5);
-light2.position.set(-5,-5,5);
-scene.add(light2);
-
-// 控制器
-const controls = new THREE.OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.enableZoom = false;
-
-camera.position.z = 3;
-
-// 加载模型
 const loader = new THREE.GLTFLoader();
+let mainModel;
 
-loader.load("glb格式.glb", function(gltf){
+loader.load("glb格式.glb",(gltf)=>{
+  mainModel = gltf.scene;
+  mainModel.scale.set(2.5,2.5,2.5); // 🔥 放大模型
+  scene.add(mainModel);
+});
 
-  const model = gltf.scene;
+camera.position.z = 4;
 
-  model.traverse((child)=>{
-    if(child.isMesh){
-      child.material = new THREE.MeshPhysicalMaterial({
-        transmission: 1,
-        roughness: 0,
-        metalness: 0,
-        thickness: 1,
-        envMapIntensity: 1.5,
-        clearcoat: 1,
-        clearcoatRoughness: 0
-      });
+const controls = new THREE.OrbitControls(camera,renderer.domElement);
+controls.enableDamping = true;
+
+function animate(){
+  requestAnimationFrame(animate);
+  if(mainModel) mainModel.rotation.y += 0.002;
+  controls.update();
+  renderer.render(scene,camera);
+}
+animate();
+
+// ===== 弹窗逻辑 =====
+function openModal(){
+  document.getElementById("modal").style.display = "flex";
+
+  const modalScene = new THREE.Scene();
+  const modalCamera = new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,1000);
+  const modalRenderer = new THREE.WebGLRenderer({antialias:true});
+
+  modalRenderer.setSize(window.innerWidth*0.8,window.innerHeight*0.8);
+  document.getElementById("modalCanvas").innerHTML="";
+  document.getElementById("modalCanvas").appendChild(modalRenderer.domElement);
+
+  const light = new THREE.PointLight(0xffffff,2);
+  light.position.set(5,5,5);
+  modalScene.add(light);
+
+  loader.load("glb格式.glb",(gltf)=>{
+    const model = gltf.scene;
+    model.scale.set(3,3,3);
+    modalScene.add(model);
+
+    function render(){
+      requestAnimationFrame(render);
+      model.rotation.y += 0.003;
+      modalRenderer.render(modalScene,modalCamera);
     }
+    render();
   });
 
-  model.scale.set(1.5,1.5,1.5);
-  scene.add(model);
+  modalCamera.position.z = 4;
+}
 
-  function animate(){
-    requestAnimationFrame(animate);
-    model.rotation.y += 0.003;
-    controls.update();
-    renderer.render(scene, camera);
-  }
+function closeModal(){
+  document.getElementById("modal").style.display = "none";
+}
 
-  animate();
-
-}, undefined, function(error){
-  console.error("模型加载失败:", error);
-});
-
-window.addEventListener("resize", ()=>{
-  camera.aspect = window.innerWidth/window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
 </script></body>
 </html>
