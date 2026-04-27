@@ -1,16 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
-<title>GAO ZEQIAN - GLASS ART</title>
+<title>高泽乾 · 玻璃艺术</title>
 
 <style>
 body{
   margin:0;
   background:#0a0a0a;
   color:#fff;
-  font-family:Arial, Helvetica, sans-serif;
-  overflow-x:hidden;
+  font-family:Arial;
 }
 
 /* 顶部名字 */
@@ -18,43 +17,30 @@ body{
   position:fixed;
   top:30px;
   left:40px;
-  z-index:10;
   letter-spacing:3px;
   font-size:14px;
 }
 
-/* 3D区域 */
+/* 首屏 */
 .hero{
   height:100vh;
-  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:60px;
+  letter-spacing:10px;
 }
 
-#viewer{
-  width:100%;
-  height:100%;
-}
-
-/* 标题 */
-.title{
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  font-size:80px;
-  letter-spacing:8px;
-  pointer-events:none;
-}
-
-/* 作品区域 */
+/* 内容区 */
 .section{
-  padding:120px 80px;
+  padding:120px 40px;
+  text-align:center;
   background:#111;
 }
 
 .work{
-  max-width:900px;
+  max-width:800px;
   margin:auto;
-  text-align:center;
 }
 
 .work img{
@@ -63,8 +49,8 @@ body{
 }
 
 .desc{
-  margin-top:30px;
   color:#aaa;
+  margin-top:20px;
   line-height:1.8;
 }
 </style>
@@ -74,118 +60,23 @@ body{
 
 <div class="nav">GAO ZEQIAN</div>
 
-<!-- 3D -->
 <div class="hero">
-  <div id="viewer"></div>
-  <div class="title">GLASS ART</div>
+  GLASS ART
 </div>
 
-<!-- 作品介绍 -->
 <div class="section">
   <div class="work">
-    <h2>GLASS SCULPTURE 01</h2>
+    <h2>玻璃雕塑 01</h2>
+
     <p class="desc">
       玻璃材质艺术雕塑，探索光线与形态的关系。<br>
       Designed by Gao Zeqian · 2026
     </p >
 
-    <!-- 这里先用你这张图 -->
-    < img src="your-image.jpg">
+    <!-- 临时占位图（一定能显示） -->
+    < img src="https://picsum.photos/800/1000">
   </div>
 </div>
-
-<!-- Three.js CDN（关键！！） -->
-<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/controls/OrbitControls.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/loaders/GLTFLoader.js"></script>
-
-<script>
-// 场景
-const scene = new THREE.Scene();
-
-// 相机
-const camera = new THREE.PerspectiveCamera(
-  50,
-  window.innerWidth/window.innerHeight,
-  0.1,
-  1000
-);
-camera.position.set(0,0,6);
-
-// 渲染器
-const renderer = new THREE.WebGLRenderer({antialias:true,alpha:true});
-renderer.setSize(window.innerWidth,window.innerHeight);
-renderer.outputEncoding = THREE.sRGBEncoding;
-renderer.physicallyCorrectLights = true;
-document.getElementById("viewer").appendChild(renderer.domElement);
-
-// 光
-const light1 = new THREE.DirectionalLight(0xffffff,1.5);
-light1.position.set(5,5,5);
-scene.add(light1);
-
-const light2 = new THREE.DirectionalLight(0xffffff,1);
-light2.position.set(-5,3,-5);
-scene.add(light2);
-
-// 控制器
-const controls = new THREE.OrbitControls(camera,renderer.domElement);
-controls.enableDamping = true;
-controls.enablePan = false;
-
-// 加载模型
-const loader = new THREE.GLTFLoader();
-
-loader.load("glb格式.glb", function(gltf){
-
-  const model = gltf.scene;
-
-  // 🔥 自动居中（解决你轴心问题）
-  const box = new THREE.Box3().setFromObject(model);
-  const center = box.getCenter(new THREE.Vector3());
-  model.position.sub(center);
-
-  // 🔥 自动缩放（解决太小问题）
-  const size = box.getSize(new THREE.Vector3());
-  const scale = 3 / size.length();
-  model.scale.setScalar(scale);
-
-  // 🔥 玻璃材质（关键优化）
-  model.traverse((child)=>{
-    if(child.isMesh){
-      child.material = new THREE.MeshPhysicalMaterial({
-        color:0xffffff,
-        roughness:0.05,
-        transmission:1,
-        thickness:2,
-        ior:1.45,
-        clearcoat:1,
-        envMapIntensity:1.5
-      });
-    }
-  });
-
-  scene.add(model);
-
-  // 动画
-  function animate(){
-    requestAnimationFrame(animate);
-    model.rotation.y += 0.002;
-    controls.update();
-    renderer.render(scene,camera);
-  }
-
-  animate();
-
-});
-
-// 自适应
-window.addEventListener("resize",()=>{
-  camera.aspect = window.innerWidth/window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth,window.innerHeight);
-});
-</script>
 
 </body>
 </html>
