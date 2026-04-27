@@ -1,0 +1,65 @@
+<!DOCTYPE html><html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>作品详情</title><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400&display=swap" rel="stylesheet"><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js"></script><style>
+body{margin:0;background:#000;color:#fff;font-family:"Inter"}
+
+.back{
+position:fixed;
+top:30px;
+left:40px;
+cursor:pointer;
+opacity:.7
+}
+
+.hero{height:100vh}
+#viewer{width:100%;height:100%}
+
+.content{padding:100px 80px;max-width:900px}
+h1{font-family:"Playfair Display";font-size:48px}
+.meta{color:#888;margin-top:10px}
+.desc{margin-top:40px;line-height:1.8;color:#ccc}
+</style></head><body><div class="back" onclick="history.back()">← BACK</div><section class="hero">
+  <div id="viewer"></div>
+</section><section class="content">
+  <h1>Core Form</h1>
+  <div class="meta">2026 · Glass · Unique Piece</div>  <div class="desc">
+    这是一个关于光与结构的玻璃艺术实验。
+    通过复杂形态与反射关系，探索材质与空间之间的边界。
+  </div>
+</section><script>
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,1000);
+
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(window.innerWidth,window.innerHeight);
+document.getElementById("viewer").appendChild(renderer.domElement);
+
+const light = new THREE.PointLight(0xffffff,2);
+light.position.set(5,5,5);
+scene.add(light);
+
+const loader = new THREE.GLTFLoader();
+
+loader.load("glb格式.glb",(gltf)=>{
+  const model = gltf.scene;
+  model.scale.set(2.8,2.8,2.8);
+  scene.add(model);
+
+  function animate(){
+    requestAnimationFrame(animate);
+    model.rotation.y += 0.003;
+    controls.update();
+    renderer.render(scene,camera);
+  }
+  animate();
+});
+
+camera.position.z = 4;
+
+const controls = new THREE.OrbitControls(camera,renderer.domElement);
+controls.enableDamping = true;
+
+</script></body>
+</html>
