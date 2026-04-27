@@ -2,140 +2,47 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>高泽乾 · 玻璃艺术</title><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script><style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{
-  font-family:"Inter",sans-serif;
-  background:#000;
-  color:#fff;
-}
+<title>高泽乾 · 玻璃艺术</title><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400&display=swap" rel="stylesheet"><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js"></script><style>
+body{margin:0;background:#000;color:#fff;font-family:"Inter"}
+header{position:fixed;top:0;width:100%;padding:24px 60px;z-index:10}
+.logo{font-family:"Playfair Display";letter-spacing:4px}
+.hero{height:100vh;position:relative}
+#canvas3d{width:100%;height:100%}
+.overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.overlay h1{font-size:64px;font-family:"Playfair Display"}
 
-/* 顶部 */
-header{
-  position:fixed;
-  top:0;
-  width:100%;
-  padding:24px 60px;
-  display:flex;
-  justify-content:space-between;
-  z-index:100;
-}
-
-.logo{
-  font-family:"Playfair Display";
-  letter-spacing:4px;
-}
-
-/* 3D区域 */
-.hero{
-  height:100vh;
-  position:relative;
-}
-
-#canvas3d{
-  width:100%;
-  height:100%;
-}
-
-.overlay{
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  text-align:center;
-}
-
-.overlay h1{
-  font-family:"Playfair Display";
-  font-size:64px;
-}
-
-/* 作品区 */
-.section{
-  padding:120px 80px;
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:40px;
-  margin-top:60px;
-}
-
-.card{
-  background:#111;
-  padding:40px;
-  cursor:pointer;
-  transition:0.4s;
-}
-
-.card:hover{
-  transform:translateY(-10px);
-  background:#222;
-}
-
-.card h3{
-  font-family:"Playfair Display";
-}
-
-/* 弹窗 */
-.modal{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:#000;
-  display:none;
-  justify-content:center;
-  align-items:center;
-  z-index:200;
-}
-
-.modal-content{
-  width:80%;
-  height:80%;
-}
-
-.close{
-  position:absolute;
-  top:40px;
-  right:60px;
-  cursor:pointer;
-}
+.section{padding:120px 80px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin-top:60px}
+.card{background:#111;padding:40px;cursor:pointer;transition:.3s}
+.card:hover{background:#222;transform:translateY(-10px)}
 </style></head><body><header>
   <div class="logo">GAO ZEQIAN</div>
-</header><!-- 3D主视觉 --><section class="hero">
+</header><section class="hero">
   <div id="canvas3d"></div>
   <div class="overlay">
     <h1>GLASS ART</h1>
-    <p>Scroll to explore</p >
+    <p>Scroll</p >
   </div>
-</section><!-- 作品列表 --><section class="section">
+</section><section class="section">
   <h2>COLLECTION</h2>  <div class="grid">
-    <div class="card" onclick="openModal()">
+    <div class="card" onclick="location.href='work.html'">
       <h3>Series 01</h3>
       <p>Core Form</p >
-    </div><div class="card" onclick="openModal()">
+    </div><div class="card" onclick="location.href='work.html'">
   <h3>Series 02</h3>
   <p>Light Study</p >
 </div>
 
-<div class="card" onclick="openModal()">
+<div class="card" onclick="location.href='work.html'">
   <h3>Series 03</h3>
   <p>Reflection</p >
 </div>
 
   </div>
-</section><!-- 弹窗 --><div class="modal" id="modal">
-  <div class="close" onclick="closeModal()">X</div>
-  <div class="modal-content" id="modalCanvas"></div>
-</div><script>
-// ===== 主3D =====
+</section><script>
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,1000);
-const renderer = new THREE.WebGLRenderer({antialias:true,alpha:true});
-
+const renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(window.innerWidth,window.innerHeight);
 document.getElementById("canvas3d").appendChild(renderer.domElement);
 
@@ -144,12 +51,12 @@ light.position.set(5,5,5);
 scene.add(light);
 
 const loader = new THREE.GLTFLoader();
-let mainModel;
+let model;
 
 loader.load("glb格式.glb",(gltf)=>{
-  mainModel = gltf.scene;
-  mainModel.scale.set(2.5,2.5,2.5); // 🔥 放大模型
-  scene.add(mainModel);
+  model = gltf.scene;
+  model.scale.set(2.5,2.5,2.5);
+  scene.add(model);
 });
 
 camera.position.z = 4;
@@ -159,47 +66,10 @@ controls.enableDamping = true;
 
 function animate(){
   requestAnimationFrame(animate);
-  if(mainModel) mainModel.rotation.y += 0.002;
+  if(model) model.rotation.y += 0.002;
   controls.update();
   renderer.render(scene,camera);
 }
 animate();
-
-// ===== 弹窗逻辑 =====
-function openModal(){
-  document.getElementById("modal").style.display = "flex";
-
-  const modalScene = new THREE.Scene();
-  const modalCamera = new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,1000);
-  const modalRenderer = new THREE.WebGLRenderer({antialias:true});
-
-  modalRenderer.setSize(window.innerWidth*0.8,window.innerHeight*0.8);
-  document.getElementById("modalCanvas").innerHTML="";
-  document.getElementById("modalCanvas").appendChild(modalRenderer.domElement);
-
-  const light = new THREE.PointLight(0xffffff,2);
-  light.position.set(5,5,5);
-  modalScene.add(light);
-
-  loader.load("glb格式.glb",(gltf)=>{
-    const model = gltf.scene;
-    model.scale.set(3,3,3);
-    modalScene.add(model);
-
-    function render(){
-      requestAnimationFrame(render);
-      model.rotation.y += 0.003;
-      modalRenderer.render(modalScene,modalCamera);
-    }
-    render();
-  });
-
-  modalCamera.position.z = 4;
-}
-
-function closeModal(){
-  document.getElementById("modal").style.display = "none";
-}
-
 </script></body>
 </html>
