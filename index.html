@@ -1,75 +1,17 @@
-<!DOCTYPE html><html lang="zh">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>高泽乾 · 玻璃艺术</title><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400&display=swap" rel="stylesheet"><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js"></script><style>
-body{margin:0;background:#000;color:#fff;font-family:"Inter"}
-header{position:fixed;top:0;width:100%;padding:24px 60px;z-index:10}
-.logo{font-family:"Playfair Display";letter-spacing:4px}
-.hero{height:100vh;position:relative}
-#canvas3d{width:100%;height:100%}
-.overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
-.overlay h1{font-size:64px;font-family:"Playfair Display"}
+GAO ZEQIAN · GLASS ART body{ margin:0; background:#0a0a0a; color:#fff; font-family:"Inter"; overflow-x:hidden; } /* 顶部 */ .nav{ position:fixed; top:30px; left:40px; z-index:10; letter-spacing:3px; font-size:14px; } /* 3D区域 */ .hero{ height:100vh; position:relative; } #viewer{ width:100%; height:100%; } /* 标题 */ .hero-title{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; pointer-events:none; } .hero-title h1{ font-family:"Playfair Display"; font-size:80px; letter-spacing:8px; } /* 海报 */ .poster{ height:120vh; display:flex; align-items:center; justify-content:center; font-family:"Playfair Display"; font-size:60px; letter-spacing:6px; } /* 黑 */ .black{background:#000; color:#fff;} /* 白 */ .white{background:#fff; color:#000;} /* 灰 */ .gray{ background:linear-gradient(#bbb,#888); color:#111; } /* 内容 */ .content{ padding:120px 80px; max-width:900px; } .meta{ margin-top:20px; color:#888; } .desc{ margin-top:40px; line-height:1.9; color:#ccc; } 
 
-.section{padding:120px 80px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin-top:60px}
-.card{background:#111;padding:40px;cursor:pointer;transition:.3s}
-.card:hover{background:#222;transform:translateY(-10px)}
-</style></head><body><header>
-  <div class="logo">GAO ZEQIAN</div>
-</header><section class="hero">
-  <div id="canvas3d"></div>
-  <div class="overlay">
-    <h1>GLASS ART</h1>
-    <p>Scroll</p >
-  </div>
-</section><section class="section">
-  <h2>COLLECTION</h2>  <div class="grid">
-    <div class="card" onclick="location.href='work.html'">
-      <h3>Series 01</h3>
-      <p>Core Form</p >
-    </div><div class="card" onclick="location.href='work.html'">
-  <h3>Series 02</h3>
-  <p>Light Study</p >
-</div>
+GAO ZEQIAN
 
-<div class="card" onclick="location.href='work.html'">
-  <h3>Series 03</h3>
-  <p>Reflection</p >
-</div>
+GLASS ART
 
-  </div>
-</section><script>
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,1000);
-const renderer = new THREE.WebGLRenderer({antialias:true});
-renderer.setSize(window.innerWidth,window.innerHeight);
-document.getElementById("canvas3d").appendChild(renderer.domElement);
+CORE FORM GLASS ART A STUDY OF LIGHT 
 
-const light = new THREE.PointLight(0xffffff,2);
-light.position.set(5,5,5);
-scene.add(light);
+Core Form
 
-const loader = new THREE.GLTFLoader();
-let model;
+2026 · Glass · Unique Piece
 
-loader.load("glb格式.glb",(gltf)=>{
-  model = gltf.scene;
-  model.scale.set(2.5,2.5,2.5);
-  scene.add(model);
-});
+An exploration of translucency and structure, where material dissolves into light. 
 
-camera.position.z = 4;
+Between fragility and tension, the form exists in a suspended state.
 
-const controls = new THREE.OrbitControls(camera,renderer.domElement);
-controls.enableDamping = true;
-
-function animate(){
-  requestAnimationFrame(animate);
-  if(model) model.rotation.y += 0.002;
-  controls.update();
-  renderer.render(scene,camera);
-}
-animate();
-</script></body>
-</html>
+const scene = new THREE.Scene(); const camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.1, 1000); const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true }); renderer.setSize(window.innerWidth, window.innerHeight); renderer.outputEncoding = THREE.sRGBEncoding; renderer.physicallyCorrectLights = true; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.2; document.getElementById("viewer").appendChild(renderer.domElement); /* HDR环境 */ new THREE.RGBELoader() .setPath('https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/') .load('studio_small_03_1k.hdr', function(texture){ texture.mapping = THREE.EquirectangularReflectionMapping; scene.environment = texture; }); /* 控制 */ const controls = new THREE.OrbitControls(camera, renderer.domElement); controls.enableDamping = true; controls.enablePan = false; /* 灯光 */ const light1 = new THREE.DirectionalLight(0xffffff, 1.2); light1.position.set(5,5,5); scene.add(light1); const light2 = new THREE.DirectionalLight(0xffffff, 0.6); light2.position.set(-5,3,-5); scene.add(light2); /* 模型 */ const loader = new THREE.GLTFLoader(); loader.load("glb格式.glb", function(gltf){ const model = gltf.scene; /* 真居中 */ const box = new THREE.Box3().setFromObject(model); const center = box.getCenter(new THREE.Vector3()); const size = box.getSize(new THREE.Vector3()); model.position.sub(center); model.position.y -= size.y * 0.08; /* 缩放 */ const scale = 3 / size.length(); model.scale.setScalar(scale); /* 玻璃材质 */ model.traverse((child)=>{ if(child.isMesh){ child.material = new THREE.MeshPhysicalMaterial({ color:0xffffff, roughness:0.05, metalness:0, transmission:1, thickness:2, ior:1.45, clearcoat:1, envMapIntensity:1.5 }); } }); scene.add(model); camera.position.set(0,0,5); function animate(){ requestAnimationFrame(animate); model.rotation.y += 0.002; controls.update(); renderer.render(scene,camera); } animate(); }); /* 自适应 */ window.addEventListener('resize',()=>{ camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }); 
