@@ -8,32 +8,34 @@
 html, body {
   margin: 0;
   height: 100%;
-  overflow-y: scroll;
-  scroll-snap-type: y mandatory;
+  overflow: hidden; /* ⭐ 关键：禁止系统滚动 */
   background: #0a0a0a;
   font-family: Helvetica, Arial, sans-serif;
   color: white;
 }
 
-/* ===== PAGE ===== */
-.page {
-  height: 100vh;
-  scroll-snap-align: start;
-  position: relative;
-  display: flex;
-  align-items: center;
-  padding: 0 8vw;
-  box-sizing: border-box;
-}
-
-/* ===== canvas ===== */
+/* canvas */
 canvas {
   position: fixed;
   top: 0;
   left: 0;
 }
 
-/* ===== layout ===== */
+/* page */
+.page {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: none;
+  padding: 10vh 8vw;
+  box-sizing: border-box;
+}
+
+.page.active {
+  display: flex;
+}
+
+/* layout */
 .left, .right {
   width: 50%;
 }
@@ -44,70 +46,31 @@ canvas {
   justify-content: center;
 }
 
-/* ===== typography ===== */
+/* text */
 h1 {
   font-size: 26px;
   font-weight: 300;
-  letter-spacing: 1px;
-  margin-bottom: 10px;
 }
 
 p {
   font-size: 13px;
   line-height: 1.8;
   opacity: 0.75;
-  max-width: 460px;
+  max-width: 420px;
 }
 
-/* ===== poster ===== */
+/* poster */
 .poster {
-  width: 380px;
-  opacity: 0.95;
+  width: 360px;
 }
 
-/* ===== header ===== */
+/* header */
 .header {
   position: fixed;
   top: 40px;
   left: 40px;
   font-size: 12px;
   letter-spacing: 2px;
-  opacity: 0.6;
-  z-index: 10;
-}
-
-/* =========================
-   🎨 DESIGN LAYERS（新增）
-========================= */
-
-/* 线条结构 */
-.line {
-  position: absolute;
-  width: 1px;
-  height: 60%;
-  background: rgba(255,255,255,0.06);
-  left: 6vw;
-  top: 20%;
-}
-
-/* 横向分割线 */
-.hline {
-  position: absolute;
-  width: 30%;
-  height: 1px;
-  background: rgba(255,255,255,0.06);
-  bottom: 25%;
-  left: 8vw;
-}
-
-/* 右侧装饰块 */
-.block {
-  position: absolute;
-  width: 180px;
-  height: 280px;
-  border: 1px solid rgba(255,255,255,0.06);
-  right: 10vw;
-  top: 20%;
   opacity: 0.6;
 }
 </style>
@@ -119,77 +82,52 @@ p {
 
 <canvas id="webgl"></canvas>
 
-<!-- ================= PAGE 1 ================= -->
-<section class="page" id="p1">
-
-  <div class="line"></div>
-  <div class="hline"></div>
-  <div class="block"></div>
-
+<!-- PAGE 1 -->
+<section class="page active" id="p1">
   <div class="center">
     <div id="modelArea"></div>
   </div>
 </section>
 
-<!-- ================= PAGE 2 ================= -->
+<!-- PAGE 2 -->
 <section class="page" id="p2">
-
-  <div class="line"></div>
-
   <div class="left">
-    <h1>Glass Object Study</h1>
+    <h1>Material Translation</h1>
     <p>
-      该作品由AI视觉生成（Midjourney + 混元模型）开始，
-      在Cinema4D中重构三维结构，并通过3D打印进入现实材料系统。
-      石膏翻模 / 硅胶模具 / 蜡模修型 / 高温石膏铸造，
-      最终在玻璃窑中完成物理转译。
+      AI生成 → C4D重建 → 3D打印 → 石膏翻模 →
+      硅胶开模 → 蜡模修型 → 高温玻璃铸造。
     </p >
   </div>
-
   <div class="right">
     < img src="./glass.png" class="poster">
   </div>
-
 </section>
 
-<!-- ================= PAGE 3 ================= -->
+<!-- PAGE 3 -->
 <section class="page" id="p3">
-
-  <div class="block"></div>
-
   <div class="left">
     < img src="./glass.png" class="poster">
   </div>
-
   <div class="right">
-    <h1>Material Pipeline</h1>
+    <h1>Process System</h1>
     <p>
-      AI生成 → C4D建模 → 3D打印 → 翻模系统 →
-      蜡模精修 → 耐火石膏 → 窑炉玻璃铸造。
-      这是一个从“数字生成”到“物理凝固”的完整链路。
+      这是一个数字到物理的连续生成链路，
+      每一步都是材料状态的转换。
     </p >
   </div>
-
 </section>
 
-<!-- ================= PAGE 4 ================= -->
+<!-- PAGE 4 -->
 <section class="page" id="p4">
-
-  <div class="hline"></div>
-
   <div style="width:100%;text-align:center;">
-    <h1 style="font-size:34px;letter-spacing:3px;">GAO ZE QIAN</h1>
+    <h1 style="font-size:32px;">GAO ZE QIAN</h1>
 
-    <p style="max-width:700px;margin:auto;margin-top:20px;">
-      艺术家 / 设计师 / 材料实验研究者<br><br>
+    <p style="max-width:650px;margin:auto;margin-top:20px;">
+      南京艺术学院 · 玻璃艺术专业（大二）<br><br>
 
-      我目前就读于南京艺术学院玻璃艺术专业（大二）。
-      我的创作围绕“数字生成 → 物理转译 → 材料再造”的路径展开，
-      通过AI生成、三维建模与传统玻璃工艺之间的连接，
-      构建一种新的视觉生产体系。<br><br>
-
-      我关注的不是“形态”，而是材料如何记录时间，
-      以及数字结构如何进入现实世界成为物理存在。<br><br>
+      我专注于数字建模与玻璃工艺的融合研究，
+      通过AI生成、三维建模与传统工艺的结合，
+      探索材料如何在数字与物理之间转译。<br><br>
 
       Email: 3586822968@qq.com<br>
       WeChat: gaozeqian2006<br>
@@ -197,7 +135,6 @@ p {
       Tel: 18751982910
     </p >
   </div>
-
 </section>
 
 <!-- THREE -->
@@ -205,6 +142,9 @@ p {
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
 <script>
+
+// ================= STATE =================
+let page = 1;
 
 // ================= SCENE =================
 const scene = new THREE.Scene();
@@ -220,7 +160,7 @@ renderer.setSize(innerWidth,innerHeight);
 document.body.appendChild(renderer.domElement);
 
 // ================= LIGHT =================
-scene.add(new THREE.AmbientLight(0xffffff,0.35));
+scene.add(new THREE.AmbientLight(0xffffff,0.4));
 const dir = new THREE.DirectionalLight(0xffffff,2);
 dir.position.set(3,5,2);
 scene.add(dir);
@@ -233,41 +173,61 @@ new THREE.GLTFLoader().load("./model.glb",(gltf)=>{
   scene.add(model);
 });
 
-// ================= PAGE STATE =================
-function getPage(){
-  return Math.round(window.scrollY / window.innerHeight) + 1;
-}
+// ================= PAGE SWITCH SYSTEM（核心修复） =================
 
-// ================= MODEL MOTION SYSTEM =================
-// ⭐ 核心：不是乱飘，而是“随页面状态移动”
-function updateModel(page){
-  if(!model) return;
+// ⭐ 防止误触滚动太快
+let lock = false;
 
-  if(page === 1){
-    model.position.set(0,0,0);
-    model.scale.set(1.6,1.6,1.6); // ⭐ 放大（解决空）
+window.addEventListener("wheel",(e)=>{
+
+  if(lock) return;
+  lock = true;
+
+  if(e.deltaY > 0){
+    page++;
+  } else {
+    page--;
   }
 
-  if(page === 2){
+  page = Math.max(1, Math.min(4, page));
+
+  switchPage(page);
+
+  setTimeout(()=> lock=false, 800);
+
+});
+
+// ================= SWITCH =================
+function switchPage(i){
+
+  document.querySelectorAll(".page")
+    .forEach(p=>p.classList.remove("active"));
+
+  document.getElementById("p"+i).classList.add("active");
+
+  // ================= MODEL STATE =================
+  if(!model) return;
+
+  if(i === 1){
+    model.position.set(0,0,0);
+    model.scale.set(1.8,1.8,1.8); // ⭐ 放大第一屏
+  }
+
+  if(i === 2){
     model.position.set(2,0,-1);
+    model.scale.set(1,1,1);
+  }
+
+  if(i === 3){
+    model.position.set(-2,0,-1);
     model.scale.set(0.9,0.9,0.9);
   }
 
-  if(page === 3){
-    model.position.set(-2,0,-1);
-    model.scale.set(0.8,0.8,0.8);
-  }
-
-  if(page === 4){
+  if(i === 4){
     model.position.set(0,-1,0);
-    model.scale.set(0.6,0.6,0.6);
+    model.scale.set(0.7,0.7,0.7);
   }
 }
-
-// ================= SCROLL =================
-window.addEventListener("scroll",()=>{
-  updateModel(getPage());
-});
 
 // ================= RESIZE =================
 addEventListener("resize",()=>{
@@ -280,7 +240,7 @@ addEventListener("resize",()=>{
 function animate(){
   requestAnimationFrame(animate);
 
-  if(model && getPage()===1){
+  if(model && page === 1){
     model.rotation.y += 0.003;
   }
 
