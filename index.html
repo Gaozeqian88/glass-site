@@ -2,13 +2,13 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<title>GAO ZE QIAN / GLASS EXHIBITION</title>
+<title>GAO ZE QIAN / DIGITAL EXHIBITION</title>
 
 <style>
 html, body {
   margin: 0;
   height: 100%;
-  overflow: hidden; /* ⭐ 关键：禁止滑动 */
+  overflow: hidden;
   background: #0a0a0a;
   font-family: Helvetica, Arial, sans-serif;
   color: white;
@@ -21,234 +21,239 @@ canvas {
   left: 0;
 }
 
-/* ===== 展厅文本 ===== */
-.section {
+/* ===== 页面容器 ===== */
+.page {
   position: absolute;
   width: 100%;
   height: 100%;
+  display: none;
+  padding: 10vh 8vw;
+  box-sizing: border-box;
+}
+
+.page.active {
   display: flex;
+}
+
+/* ===== 布局 ===== */
+.left, .right {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.center {
+  width: 100%;
+  display: flex;
+  justify-content: center;
   align-items: center;
-  padding: 0 10vw;
-  opacity: 0;
-  transition: 0.8s ease;
-  pointer-events: none;
 }
 
-.section.active {
-  opacity: 1;
-}
-
-.text {
-  max-width: 420px;
-  line-height: 1.7;
-  font-weight: 200;
-}
-
+/* ===== 文本风格（奢侈品级） ===== */
 h1 {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 300;
-  margin-bottom: 8px;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
 }
 
-h2 {
-  font-size: 12px;
-  opacity: 0.6;
-  margin-bottom: 18px;
+p {
+  font-size: 13px;
+  line-height: 1.8;
+  opacity: 0.75;
+  max-width: 420px;
 }
 
-/* 右侧 */
-.right {
-  margin-left: auto;
-  text-align: right;
+/* ===== 海报 ===== */
+.poster {
+  width: 220px;
+  opacity: 0.9;
 }
 
-/* 顶部 */
-.header {
-  position: fixed;
-  top: 40px;
-  left: 40px;
-  font-size: 12px;
-  letter-spacing: 2px;
-  opacity: 0.7;
-  z-index: 10;
-}
-
-/* ===== 底部双虚线箭头 ===== */
-.nav {
+/* ===== 右上角按钮 ===== */
+.btn {
   position: fixed;
   bottom: 40px;
   left: 50%;
   transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  z-index: 20;
-  cursor: pointer;
-}
-
-.arrow {
-  font-size: 18px;
-  opacity: 0.6;
+  font-size: 12px;
   letter-spacing: 2px;
+  opacity: 0.6;
+  cursor: pointer;
   user-select: none;
 }
 
-.arrow:hover {
+.btn:hover {
   opacity: 1;
-}
-
-.small {
-  font-size: 10px;
-  opacity: 0.4;
-  margin-top: 4px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">GAO ZE QIAN / GLASS STUDY</div>
+<!-- ================= PAGE 1 ================= -->
+<div class="page active" id="p1">
+  <div class="center"></div>
+</div>
 
-<!-- ===== 展厅文本 ===== -->
-<div class="section active">
-  <div class="text">
+<!-- ================= PAGE 2 ================= -->
+<div class="page" id="p2">
+  <div class="left">
     <h1>Glass Object Study</h1>
-    <h2>Material × Light</h2>
-    玻璃材料在数字空间中的结构重构实验。
+    <p>
+      本作品围绕“玻璃材料在数字空间中的再构造”展开。
+      我尝试将玻璃从物理材料转译为视觉语言，使其在虚拟空间中具备折射、透明、结构张力等特征。
+      作品不是对现实的复制，而是一种对“光如何塑造物体存在”的研究。
+      在南京艺术学院玻璃艺术专业的学习过程中，我逐渐将传统材料实验转向数字建模与视觉系统构建。
+    </p >
+  </div>
+
+  <div class="right" id="miniModel2"></div>
+</div>
+
+<!-- ================= PAGE 3 ================= -->
+<div class="page" id="p3">
+  <div class="left" id="miniModel3"></div>
+
+  <div class="center">
+    < img src="./glass.png" class="poster">
+  </div>
+
+  <div class="right">
+    <h1>Material Archive</h1>
+    <p>
+      该系列将真实玻璃艺术语言与数字媒介进行并置处理。
+      图像不再作为记录，而成为材料的一部分。
+      通过二维海报与三维结构的叠加，形成一种“可观看的空间实验”。
+    </p >
   </div>
 </div>
 
-<div class="section">
-  <div class="text right">
-    <h1>Light Field</h1>
-    <h2>Spatial Construction</h2>
-    光作为空间结构的一部分存在。
+<!-- ================= PAGE 4 ================= -->
+<div class="page" id="p4">
+  <div style="width:100%;display:flex;justify-content:center;flex-direction:column;align-items:center;text-align:center;">
+    <h1 style="font-size:32px;letter-spacing:3px;">GAO ZE QIAN</h1>
+
+    <p style="max-width:600px;margin-top:20px;">
+      艺术家 / 设计师 / 三维创作者<br><br>
+
+      我目前就读于南京艺术学院玻璃艺术专业（大二），
+      在传统材料研究与数字视觉语言之间进行持续的跨媒介探索。
+      我的创作关注“材料的感知边界”，
+      尤其是玻璃在光、空间与数字建模中的转换关系。<br><br>
+
+      在视觉表达上，我更倾向于构建一种“缓慢的观看方式”，
+      让作品不只是被观看，而是被进入。
+      我的实践涵盖三维建模、视觉系统设计与实验性影像结构。
+    </p >
+
+    <p style="margin-top:40px;opacity:0.6;">
+      Email: 3586822968@qq.com<br>
+      WeChat: gaozeqian2006<br>
+      Douyin: 无聊艺术家<br>
+      Tel: 18751982910
+    </p >
   </div>
 </div>
 
-<div class="section">
-  <div class="text">
-    <h1>Glass Poster</h1>
-    <h2>2D × 3D Hybrid</h2>
-    平面与三维的叠加视觉实验。
-  </div>
-</div>
+<!-- ===== NEXT BUTTON ===== -->
+<div class="btn" id="next">⇣ NEXT</div>
 
-<div class="section">
-  <div class="text right">
-    <h1>GAO ZE QIAN</h1>
-    <h2>Artist / Designer</h2>
-    南京艺术学院 · 玻璃艺术  
-    三维 / 视觉设计创作者
-  </div>
-</div>
-
-<!-- ===== 底部双箭头 ===== -->
-<div class="nav" id="nextBtn">
-  <div class="arrow">⇣ ⇣</div>
-  <div class="small">NEXT</div>
-</div>
-
-<canvas id="webgl"></canvas>
-
-<!-- libs -->
+<!-- THREE -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
 <script>
 
-// ================= STATE =================
-let index = 0;
-const sections = document.querySelectorAll(".section");
+let page = 1;
 
-// ================= SCENE =================
+// ================= MAIN SCENE =================
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0a0a0a);
 
-// ================= CAMERA =================
 const camera = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, 0.1, 100);
 camera.position.set(0, 0.3, 3.6);
 
-// ================= RENDERER =================
-const renderer = new THREE.WebGLRenderer({
-  canvas: document.querySelector("#webgl"),
-  antialias: true
+const renderer = new THREE.WebGLRenderer({ antialias:true });
+renderer.setSize(innerWidth, innerHeight);
+document.body.appendChild(renderer.domElement);
+
+const light = new THREE.AmbientLight(0xffffff, 0.4);
+scene.add(light);
+
+const dir = new THREE.DirectionalLight(0xffffff, 2);
+dir.position.set(3,5,2);
+scene.add(dir);
+
+// ================= MAIN MODEL (PAGE1) =================
+let mainModel;
+
+const loader = new THREE.GLTFLoader();
+loader.load("./model.glb",(gltf)=>{
+  mainModel = gltf.scene;
+  scene.add(mainModel);
 });
 
-renderer.setSize(innerWidth, innerHeight);
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.2;
+// ================= MINI MODELS =================
+let m2, m3;
 
-// ================= LIGHT =================
-scene.add(new THREE.AmbientLight(0xffffff, 0.3));
+const miniLoader = new THREE.GLTFLoader();
 
-const key = new THREE.DirectionalLight(0xffffff, 2);
-key.position.set(3, 5, 2);
-scene.add(key);
+// page2 mini
+miniLoader.load("./model.glb",(gltf)=>{
+  m2 = gltf.scene;
+  m2.scale.set(0.5,0.5,0.5);
+  document.getElementById("miniModel2").appendChild(renderer.domElement);
+});
 
-// ================= CONTROLS =================
-const controls = new THREE.OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.enablePan = false;
-controls.autoRotate = true;
-controls.autoRotateSpeed = 0.25;
-
-// ================= MODEL =================
-let model;
-
-new THREE.GLTFLoader().load("./model.glb", (gltf) => {
-
-  model = gltf.scene;
-
-  const box = new THREE.Box3().setFromObject(model);
-  const center = box.getCenter(new THREE.Vector3());
-  model.position.sub(center);
-
-  const size = box.getSize(new THREE.Vector3());
-  const max = Math.max(size.x, size.y, size.z);
-
-  model.scale.setScalar(2.3 / max);
-
-  model.position.y = -0.5;
-
-  scene.add(model);
+// page3 mini
+miniLoader.load("./model.glb",(gltf)=>{
+  m3 = gltf.scene;
 });
 
 // ================= PAGE SWITCH =================
-function setPage(i) {
-
-  index = i;
-
-  sections.forEach((s, idx) => {
-    s.classList.toggle("active", idx === i);
-  });
-
-  // 🎯 镜头变化（展览切换感）
-  camera.position.y = 0.3 + i * 0.2;
-  camera.position.z = 3.6 - i * 0.15;
+function showPage(i){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById("p"+i).classList.add("active");
+  page = i;
 }
 
 // ================= BUTTON =================
-document.getElementById("nextBtn").onclick = () => {
-  index = (index + 1) % sections.length;
-  setPage(index);
+document.getElementById("next").onclick = ()=>{
+  page++;
+  if(page>4) page=1;
+  showPage(page);
 };
 
 // ================= RESIZE =================
-addEventListener("resize", () => {
+addEventListener("resize",()=>{
   camera.aspect = innerWidth/innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
+  renderer.setSize(innerWidth,innerHeight);
 });
 
-// ================= RENDER =================
+// ================= ANIMATE =================
 function animate(){
   requestAnimationFrame(animate);
 
-  controls.update();
-  renderer.render(scene, camera);
+  // PAGE 1（可交互）
+  if(page===1 && mainModel){
+    mainModel.rotation.y += 0.003;
+  }
+
+  // PAGE 2
+  if(page===2 && m2){
+    m2.rotation.y += 0.01;
+  }
+
+  // PAGE 3
+  if(page===3 && m3){
+    m3.rotation.y += 0.01;
+  }
+
+  renderer.render(scene,camera);
 }
 
 animate();
