@@ -2,16 +2,28 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<title>GAO ZE QIAN / GLASS PROCESS</title>
+<title>GAO ZE QIAN / GLASS SYSTEM</title>
 
 <style>
 html, body {
   margin: 0;
-  height: 100%;
-  overflow: hidden;
+  padding: 0;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
   background: #0a0a0a;
   font-family: Helvetica, Arial, sans-serif;
   color: white;
+}
+
+/* 每一页强制吸附（关键） */
+.page {
+  height: 100vh;
+  scroll-snap-align: start;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0 8vw;
+  box-sizing: border-box;
 }
 
 /* canvas */
@@ -21,52 +33,33 @@ canvas {
   left: 0;
 }
 
-/* ===== PAGE ===== */
-.page {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  display: none;
-  padding: 10vh 8vw;
-  box-sizing: border-box;
-}
-
-.page.active {
-  display: flex;
-}
-
 /* layout */
 .left, .right {
   width: 50%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
 }
 
 .center {
   width: 100%;
   display: flex;
   justify-content: center;
-  align-items: center;
 }
 
 /* text */
 h1 {
   font-size: 26px;
   font-weight: 300;
-  letter-spacing: 1px;
 }
 
 p {
   font-size: 13px;
   line-height: 1.8;
   opacity: 0.75;
-  max-width: 480px;
+  max-width: 420px;
 }
 
 /* poster */
 .poster {
-  width: 420px; /* ⭐ 放大（解决空） */
+  width: 320px;
   opacity: 0.95;
 }
 
@@ -80,29 +73,18 @@ p {
   opacity: 0.7;
   z-index: 10;
 }
-
-/* next hint */
-.hint {
-  position: fixed;
-  bottom: 40px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 11px;
-  opacity: 0.4;
-}
 </style>
 </head>
 
 <body>
 
 <div class="header">GAO ZE QIAN / GLASS PROCESS</div>
-<div class="hint">scroll ↓</div>
 
 <canvas id="webgl"></canvas>
 
-<!-- ================= PAGE 1 ================= -->
-<section class="page active" id="p1">
-  <div style="width:100%;height:100%;display:flex;justify-content:center;align-items:center;">
+<!-- ================= PAGE 1（交互核心） ================= -->
+<section class="page" id="p1">
+  <div class="center">
     <div id="modelArea"></div>
   </div>
 </section>
@@ -110,13 +92,14 @@ p {
 <!-- ================= PAGE 2 ================= -->
 <section class="page" id="p2">
   <div class="left">
-    <h1>Material Translation</h1>
+    <h1>Glass Object Study</h1>
     <p>
-      该作品源自Midjourney生成图像与混元AI生成模型，
-      并在Cinema4D中进行结构重建。
-      最终通过3D打印、石膏翻模、硅胶开模、蜡模制作、
-      耐火石膏铸型与高温玻璃熔制完成实体转化。
-      这一过程不仅是造型的实现，更是材料从数字到物理的连续生成。
+      该作品基于AI生成视觉（Midjourney + 混元模型），
+      在Cinema4D中进行结构重建，
+      并通过3D打印进入真实材料转译流程。
+      石膏翻模 / 硅胶开模 / 蜡模修正 /
+      耐火石膏铸型 / 高温玻璃熔制，
+      最终形成玻璃实体作品。
     </p >
   </div>
 
@@ -128,17 +111,16 @@ p {
 <!-- ================= PAGE 3 ================= -->
 <section class="page" id="p3">
   <div class="left">
-    < img src="./glass.png" class="poster" style="width:300px;">
+    < img src="./glass.png" class="poster">
   </div>
 
   <div class="right">
-    <h1>Production Pipeline</h1>
+    <h1>Material Pipeline</h1>
     <p>
-      Midjourney视觉生成 → 混元AI结构建模 →
-      Cinema4D拓扑优化 → 3D打印原型 →
-      石膏/硅胶翻模 → 蜡模精修 →
-      耐火石膏模 → 高温窑炉玻璃铸造。
-      每一步都不是“制作”，而是材料状态的转换。
+      AI生成 → C4D建模 → 3D打印原型 →
+      石膏/硅胶翻模 → 蜡模修型 →
+      耐火石膏 → 窑炉玻璃铸造。
+      这是一个“数字 → 物理”的连续生成系统。
     </p >
   </div>
 </section>
@@ -149,15 +131,12 @@ p {
     <h1 style="font-size:32px;letter-spacing:3px;">GAO ZE QIAN</h1>
 
     <p style="max-width:650px;margin:auto;margin-top:20px;">
-      艺术家 / 设计师 / 三维与材料研究者<br><br>
+      艺术家 / 设计师 / 玻璃材料研究者<br><br>
 
-      我目前就读于南京艺术学院玻璃艺术专业（大二）。
-      我的创作围绕“数字生成 → 物理转译 → 材料再造”的链路展开，
-      通过AI生成、三维建模与传统玻璃工艺的结合，
-      探索一种新的视觉生产体系。<br><br>
-
-      在实践中，我关注的不只是形态，而是“材料如何成为时间的记录”。
-      每一个作品都是一个从算法到窑炉的完整路径。<br><br>
+      我在南京艺术学院玻璃艺术专业学习，
+      研究数字建模与传统玻璃工艺之间的转换关系。
+      我的作品关注“材料如何记录时间”，
+      以及“数字形态如何进入物理世界”。<br><br>
 
       Email: 3586822968@qq.com<br>
       WeChat: gaozeqian2006<br>
@@ -174,28 +153,28 @@ p {
 
 <script>
 
-let page = 1;
-
-// ===== SCENE =====
+// ================= SCENE =================
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0a0a0a);
 
-// ===== CAMERA =====
+// ================= CAMERA =================
 const camera = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, 0.1, 100);
 camera.position.set(0,0.2,3.6);
 
-// ===== RENDERER =====
-const renderer = new THREE.WebGLRenderer({ antialias:true });
+// ================= RENDERER =================
+const renderer = new THREE.WebGLRenderer({
+  canvas: document.querySelector("#webgl"),
+  antialias: true
+});
 renderer.setSize(innerWidth, innerHeight);
-document.body.appendChild(renderer.domElement);
 
-// ===== LIGHT =====
+// ================= LIGHT =================
 scene.add(new THREE.AmbientLight(0xffffff,0.4));
 const dir = new THREE.DirectionalLight(0xffffff,2);
 dir.position.set(3,5,2);
 scene.add(dir);
 
-// ===== MODEL =====
+// ================= MODEL =================
 let model;
 
 new THREE.GLTFLoader().load("./model.glb",(gltf)=>{
@@ -203,64 +182,65 @@ new THREE.GLTFLoader().load("./model.glb",(gltf)=>{
   scene.add(model);
 });
 
-// ===== CONTROL =====
+// ================= CONTROL（只允许第一页交互） =================
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.enablePan = false;
 
-// ===== PAGE SWITCH =====
-window.addEventListener("scroll", () => {
-  const p = Math.round(window.scrollY / window.innerHeight);
-  if(p+1 !== page){
-    switchPage(p+1);
+function getPage(){
+  return Math.round(window.scrollY / window.innerHeight) + 1;
+}
+
+// ⭐ 核心：只有第一页可交互
+function updateControl(){
+  controls.enabled = (getPage() === 1);
+}
+
+// ================= PAGE ANIMATION =================
+function updateModel(page){
+
+  if(!model) return;
+
+  if(page === 1){
+    model.position.set(0,0,0);
+    model.scale.set(1,1,1);
   }
-});
 
-function switchPage(i){
+  if(page === 2){
+    model.position.set(2,0,-1);
+    model.scale.set(0.6,0.6,0.6);
+  }
 
-  page = i;
+  if(page === 3){
+    model.position.set(-2,0,-1);
+    model.scale.set(0.5,0.5,0.5);
+  }
 
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.getElementById("p"+i).classList.add("active");
-
-  // ===== MODEL LOGIC =====
-  if(model){
-
-    if(i === 1){
-      // 回到中心
-      model.position.set(0,0,0);
-      model.scale.set(1,1,1);
-    }
-
-    if(i === 2){
-      model.position.set(2,0,-1); // 退出
-      model.scale.set(0.6,0.6,0.6);
-    }
-
-    if(i === 3){
-      model.position.set(-2,0,-1); // 侧边进入
-      model.scale.set(0.5,0.5,0.5);
-    }
-
-    if(i === 4){
-      model.position.set(0,-1,0);
-      model.scale.set(0.4,0.4,0.4);
-    }
+  if(page === 4){
+    model.position.set(0,-1,0);
+    model.scale.set(0.4,0.4,0.4);
   }
 }
 
-// ===== RESIZE =====
+// ================= SCROLL =================
+window.addEventListener("scroll",()=>{
+  const page = getPage();
+  updateModel(page);
+  updateControl();
+});
+
+// ================= RESIZE =================
 addEventListener("resize",()=>{
   camera.aspect = innerWidth/innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth,innerHeight);
 });
 
-// ===== LOOP =====
+// ================= LOOP =================
 function animate(){
   requestAnimationFrame(animate);
 
-  if(model && page===1){
+  if(model && getPage()===1){
     model.rotation.y += 0.003;
   }
 
