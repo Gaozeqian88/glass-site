@@ -4,15 +4,12 @@
 <meta charset="UTF-8">
 <title>GLASS ART</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400&display=swap" rel="stylesheet">
-
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
 body{
+  margin:0;
   background:#0a0a0a;
   color:#fff;
-  font-family:"Inter",sans-serif;
-  overflow-x:hidden;
+  font-family:Arial;
 }
 
 /* 顶部 */
@@ -20,88 +17,28 @@ body{
   position:fixed;
   top:30px;
   left:40px;
-  z-index:10;
-  font-size:14px;
   letter-spacing:3px;
 }
 
-/* HERO */
+/* 首屏 */
 .hero{
   height:100vh;
   display:flex;
   align-items:center;
   justify-content:center;
-  flex-direction:column;
-  text-align:center;
+  font-size:60px;
 }
 
-.hero h1{
-  font-family:"Playfair Display";
-  font-size:90px;
-  letter-spacing:8px;
-}
-
-.hero p{
-  margin-top:10px;
-  color:#aaa;
-}
-
-/* 海报段 */
-.poster{
-  height:120vh;
+/* 图片区 */
+.visual{
+  height:100vh;
   display:flex;
   align-items:center;
   justify-content:center;
-  background:#000;
 }
 
-.poster img{
-  width:420px;
-  filter:brightness(1.05) contrast(1.05);
-}
-
-/* 内容 */
-.section{
-  padding:120px 80px;
-  max-width:1200px;
-  margin:auto;
-}
-
-.title{
-  font-family:"Playfair Display";
-  font-size:48px;
-  margin-bottom:40px;
-}
-
-.desc{
-  color:#aaa;
-  line-height:1.8;
-  max-width:600px;
-}
-
-/* 详情布局 */
-.detail{
-  display:flex;
-  gap:80px;
-  margin-top:80px;
-}
-
-.detail img{
-  width:420px;
-}
-
-.meta{
-  color:#888;
-  font-size:14px;
-  line-height:2;
-}
-
-/* 结尾 */
-.footer{
-  text-align:center;
-  padding:100px 20px;
-  color:#666;
-  font-size:12px;
+.visual img{
+  width:60%;
 }
 </style>
 </head>
@@ -110,48 +47,13 @@ body{
 
 <div class="nav">GAO ZEQIAN</div>
 
-<!-- 第一屏 -->
-<section class="hero">
-  <h1>GLASS ART</h1>
-  <p>Drag to explore</p >
-</section>
+<div class="hero">
+  GLASS ART
+</div>
 
-<!-- 海报 -->
-<section class="poster">
+<div class="visual">
   < img src="glass.png">
-</section>
-
-<!-- 项目介绍 -->
-<section class="section">
-  <div class="title">玻璃雕塑 01</div>
-  <div class="desc">
-    以玻璃为媒介，将人物与自然形态融合，探索光影、透明度与结构之间的关系。
-    <br><br>
-    作品强调“脆弱与力量”的共存，通过柔软形态表达坚硬材质的情绪张力。
-  </div>
-
-  <div class="detail">
-    < img src="glass.jpg.png">
-    <div>
-      <div class="meta">
-        YEAR / 2026<br>
-        MATERIAL / GLASS<br>
-        TYPE / SCULPTURE<br>
-        DESIGN / GAO ZEQIAN
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- 第二张视觉 -->
-<section class="poster">
-  < img src="glass.png">
-</section>
-
-<!-- 结束 -->
-<section class="footer">
-  © GAO ZEQIAN — GLASS ART PROJECT
-</section>
+</div>
 
 </body>
 </html>
