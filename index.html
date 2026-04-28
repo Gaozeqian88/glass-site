@@ -51,27 +51,26 @@ const loader = new THREE.GLTFLoader();
 loader.load(
   "https://threejs.org/examples/models/gltf/DamagedHelmet/glTF-Binary/DamagedHelmet.glb",
   function(gltf){
-
-    console.log("模型加载成功");
+    console.log("✅ 模型加载成功");
 
     const model = gltf.scene;
 
-    // ✅ 自动居中 + 自动缩放（关键）
     const box = new THREE.Box3().setFromObject(model);
     const center = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
 
-    model.position.sub(center); // 居中
+    model.position.sub(center);
 
     const maxDim = Math.max(size.x, size.y, size.z);
     const scale = 2 / maxDim;
     model.scale.set(scale, scale, scale);
 
     scene.add(model);
-
-    // ✅ 镜头对准模型
     camera.lookAt(0,0,0);
-
+  },
+  undefined,
+  function(error){
+    console.error("❌ 模型加载失败", error);
   }
 );
 
