@@ -1,52 +1,34 @@
-<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/loaders/GLTFLoader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/controls/OrbitControls.js"></script>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>GLASS ART</title>
 
-<script>
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x111111);
+<style>
+body{
+  margin:0;
+  background:#000;
+  color:#fff;
+  font-family:Arial;
+  text-align:center;
+}
 
-// 相机（拉远，确保能看到）
-const camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.1, 1000);
-camera.position.set(0, 0, 10);
+h1{
+  margin-top:80px;
+}
 
-// 渲染器
-const renderer = new THREE.WebGLRenderer({antialias:true});
-renderer.setSize(window.innerWidth, window.innerHeight * 0.6);
-document.getElementById("viewer").appendChild(renderer.domElement);
+img{
+  width:60%;
+  margin-top:40px;
+}
+</style>
+</head>
 
-// 强光（防止黑）
-const light = new THREE.AmbientLight(0xffffff, 2);
-scene.add(light);
+<body>
 
-// 控制器
-const controls = new THREE.OrbitControls(camera, renderer.domElement);
+<h1>GLASS ART</h1>
 
-// 加载模型（关键：强制可见）
-const loader = new THREE.GLTFLoader();
+< img src="https://raw.githubusercontent.com/Gaozeqian88/glass-site/main/glass.png">
 
-loader.load("/model.glb", function(gltf){
-
-  const model = gltf.scene;
-
-  // 🔥 强制放到镜头前
-  model.position.set(0, 0, 0);
-
-  // 🔥 强制巨大（防止太小）
-  model.scale.set(5,5,5);
-
-  scene.add(model);
-
-  function animate(){
-    requestAnimationFrame(animate);
-    model.rotation.y += 0.01;
-    controls.update();
-    renderer.render(scene, camera);
-  }
-
-  animate();
-
-}, undefined, function(error){
-  console.error("加载失败", error);
-});
-</script>
+</body>
+</html>
