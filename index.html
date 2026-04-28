@@ -70,30 +70,42 @@ controls.enableDamping = true;
 /* 加载模型 */
 const loader = new THREE.GLTFLoader();
 
-loader.load("model.glb", function(gltf){
+loader.load(
+  "/model.glb",
 
-  const model = gltf.scene;
+  function(gltf){
+    const model = gltf.scene;
 
-  // 居中
-  const box = new THREE.Box3().setFromObject(model);
-  const center = box.getCenter(new THREE.Vector3());
-  model.position.sub(center);
+    // 强制放中间
+    model.position.set(0,0,0);
 
-  // 缩放
-  const size = box.getSize(new THREE.Vector3());
-  const scale = 2 / size.length();
-  model.scale.setScalar(scale);
+    // 自动居中
+    const box = new THREE.Box3().setFromObject(model);
+    const center = box.getCenter(new THREE.Vector3());
+    model.position.sub(center);
 
-  scene.add(model);
+    // 自动缩放
+    const size = box.getSize(new THREE.Vector3());
+    const scale = 2 / size.length();
+    model.scale.setScalar(scale);
 
-  function animate(){
-    requestAnimationFrame(animate);
-    model.rotation.y += 0.003;
-    controls.update();
-    renderer.render(scene,camera);
+    scene.add(model);
+
+    function animate(){
+      requestAnimationFrame(animate);
+      model.rotation.y += 0.003;
+      controls.update();
+      renderer.render(scene,camera);
+    }
+
+    animate();
+  },
+
+  function(progress){
+    console.log("加载中", progress.loaded);
+  },
+
+  function(error){
+    console.error("加载失败", error);
   }
-
-  animate();
-
-}, undefined, function(){
-  console.log("模型
+);
