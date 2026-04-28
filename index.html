@@ -12,8 +12,11 @@ html, body {
   background: #0a0a0a;
   font-family: Helvetica, Arial, sans-serif;
   color: white;
+  overscroll-behavior: none;
+  touch-action: manipulation;
 }
 
+/* canvas */
 canvas {
   position: fixed;
   top: 0;
@@ -22,6 +25,7 @@ canvas {
   pointer-events: none;
 }
 
+/* 页面 */
 .page {
   position: absolute;
   width: 100%;
@@ -36,6 +40,7 @@ canvas {
   display: flex;
 }
 
+/* 布局 */
 .left, .right {
   width: 50%;
   display: flex;
@@ -50,9 +55,11 @@ canvas {
   align-items: center;
 }
 
+/* 文本 */
 h1 {
   font-size: 28px;
   font-weight: 300;
+  letter-spacing: 1px;
 }
 
 p {
@@ -62,10 +69,12 @@ p {
   max-width: 520px;
 }
 
+/* 图片 */
 .poster {
   width: 420px;
 }
 
+/* 顶部标题 */
 .header {
   position: fixed;
   top: 40px;
@@ -73,13 +82,14 @@ p {
   font-size: 12px;
   letter-spacing: 2px;
   opacity: 0.6;
+  z-index: 10;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">GAO ZE QIAN / GLASS SYSTEM</div>
+<div class="header">GAO ZE QIAN / GLASS RITUAL</div>
 
 <canvas id="webgl"></canvas>
 
@@ -91,26 +101,26 @@ p {
   <div class="left">
     <h1>Material Translation</h1>
     <p>
-      Midjourney → 混元AI → C4D → 3D打印 →
-      石膏翻模 → 蜡模 → 玻璃烧制。
-      数字与材料之间的转译系统。
+      Midjourney → 混元AI → C4D → 3D打印 → 石膏翻模 →
+      蜡模 → 高温玻璃烧制。<br><br>
+      这是一个从数字生成到材料转译的完整系统。
     </p >
   </div>
   <div class="right">
-    <img src="./glass.png" class="poster">
+    < img src="./glass.png" class="poster">
   </div>
 </section>
 
 <!-- PAGE 3 -->
 <section class="page" id="p3">
   <div class="left">
-    <img src="./glass.png" class="poster">
+    < img src="./glass.png" class="poster">
   </div>
   <div class="right">
     <h1>Material Field</h1>
     <p>
-      玻璃成为光的结构容器，
-      形态不再重要，折射才是本体。
+      玻璃不再只是材料，而成为光的结构容器。
+      形态是结果，折射才是本质。
     </p >
   </div>
 </section>
@@ -123,8 +133,11 @@ p {
     <p style="max-width:700px;margin:auto;margin-top:20px;">
       艺术家 / 设计师 / 三维与材料研究者<br><br>
 
-      我目前就读于南京艺术学院玻璃艺术专业（大二），
-      我的创作围绕“数字生成 → 材料转译 → 物理实现”。<br><br>
+      南京艺术学院 · 玻璃艺术专业（大二）<br><br>
+
+      我的创作围绕“数字生成 → 材料转译 → 物理实现”，
+      将AI生成、三维建模与传统玻璃工艺结合，
+      构建跨媒介的视觉系统。<br><br>
 
       Email: 3586822968@qq.com<br>
       WeChat: gaozeqian2006<br>
@@ -143,14 +156,14 @@ p {
 
 let page = 1;
 
-// scene
+// ===== 场景 =====
 const scene = new THREE.Scene();
 
-// camera
+// ===== 相机 =====
 const camera = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, 0.1, 100);
 camera.position.set(0,0.2,4);
 
-// renderer
+// ===== 渲染 =====
 const renderer = new THREE.WebGLRenderer({
   canvas: document.querySelector("#webgl"),
   antialias: true
@@ -159,20 +172,20 @@ renderer.setSize(innerWidth, innerHeight);
 renderer.physicallyCorrectLights = true;
 renderer.outputEncoding = THREE.sRGBEncoding;
 
-// HDR环境
-new THREE.RGBELoader()
-  .load('https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_09_1k.hdr', function(texture){
-    texture.mapping = THREE.EquirectangularReflectionMapping;
-    scene.environment = texture;
-  });
+// ===== HDR环境 =====
+new THREE.RGBELoader().load(
+'https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_09_1k.hdr',
+(texture)=>{
+  texture.mapping = THREE.EquirectangularReflectionMapping;
+  scene.environment = texture;
+});
 
-// model
+// ===== 模型 =====
 let model;
 
 new THREE.GLTFLoader().load("./model.glb",(gltf)=>{
   model = gltf.scene;
 
-  // ⭐ 玻璃材质替换
   model.traverse((child)=>{
     if(child.isMesh){
       child.material = new THREE.MeshPhysicalMaterial({
@@ -196,7 +209,7 @@ let targetPos = new THREE.Vector3();
 let targetScale = new THREE.Vector3();
 let targetCam = new THREE.Vector3();
 
-// 切页
+// ===== 切页 =====
 function switchPage(i){
 
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
@@ -227,23 +240,45 @@ function switchPage(i){
   }
 }
 
-// 滚轮翻页
+// ===== 手势系统（PC + 手机） =====
 let lock = false;
+let startY = 0;
 
-window.addEventListener("wheel",(e)=>{
+function changePage(direction){
   if(lock) return;
   lock = true;
 
-  if(e.deltaY > 0) page++;
+  if(direction==="down") page++;
   else page--;
 
   page = Math.max(1, Math.min(4, page));
   switchPage(page);
 
-  setTimeout(()=>lock=false,800);
+  setTimeout(()=>lock=false,700);
+}
+
+// PC
+window.addEventListener("wheel",(e)=>{
+  if(e.deltaY>0) changePage("down");
+  else changePage("up");
 });
 
-// 动画
+// 手机
+window.addEventListener("touchstart",(e)=>{
+  startY = e.touches[0].clientY;
+});
+
+window.addEventListener("touchend",(e)=>{
+  let endY = e.changedTouches[0].clientY;
+  let delta = startY - endY;
+
+  if(Math.abs(delta)<50) return;
+
+  if(delta>0) changePage("down");
+  else changePage("up");
+});
+
+// ===== 动画 =====
 function animate(){
   requestAnimationFrame(animate);
 
@@ -258,6 +293,13 @@ function animate(){
   renderer.render(scene,camera);
 }
 animate();
+
+// ===== resize =====
+addEventListener("resize",()=>{
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
+});
 
 </script>
 
