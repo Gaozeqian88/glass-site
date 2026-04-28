@@ -16,7 +16,6 @@ html, body {
   touch-action: manipulation;
 }
 
-/* canvas */
 canvas {
   position: fixed;
   top: 0;
@@ -25,7 +24,6 @@ canvas {
   pointer-events: none;
 }
 
-/* 页面 */
 .page {
   position: absolute;
   width: 100%;
@@ -40,12 +38,11 @@ canvas {
   display: flex;
 }
 
-/* 布局 */
 .left, .right {
   width: 50%;
   display: flex;
-  flex-direction: column;
   justify-content: center;
+  flex-direction: column;
 }
 
 .center {
@@ -55,11 +52,9 @@ canvas {
   align-items: center;
 }
 
-/* 文本 */
 h1 {
   font-size: 28px;
   font-weight: 300;
-  letter-spacing: 1px;
 }
 
 p {
@@ -69,12 +64,10 @@ p {
   max-width: 520px;
 }
 
-/* 图片 */
 .poster {
   width: 420px;
 }
 
-/* 顶部标题 */
 .header {
   position: fixed;
   top: 40px;
@@ -90,55 +83,35 @@ p {
 <body>
 
 <div class="header">GAO ZE QIAN / GLASS RITUAL</div>
-
 <canvas id="webgl"></canvas>
 
-<!-- PAGE 1 -->
 <section class="page active" id="p1"></section>
 
-<!-- PAGE 2 -->
 <section class="page" id="p2">
   <div class="left">
     <h1>Material Translation</h1>
-    <p>
-      Midjourney → 混元AI → C4D → 3D打印 → 石膏翻模 →
-      蜡模 → 高温玻璃烧制。<br><br>
-      这是一个从数字生成到材料转译的完整系统。
-    </p >
+    <p>AI → C4D → 3D打印 → 翻模 → 玻璃烧制</p >
   </div>
   <div class="right">
-    <img src="./glass.png" class="poster">
+    < img src="./textures/glass.png" class="poster">
   </div>
 </section>
 
-<!-- PAGE 3 -->
 <section class="page" id="p3">
   <div class="left">
-    <img src="./glass.png" class="poster">
+    < img src="./textures/glass.png" class="poster">
   </div>
   <div class="right">
     <h1>Material Field</h1>
-    <p>
-      玻璃不再只是材料，而成为光的结构容器。
-      形态是结果，折射才是本质。
-    </p >
+    <p>玻璃成为光的容器</p >
   </div>
 </section>
 
-<!-- PAGE 4 -->
 <section class="page" id="p4">
-  <div style="width:100%;text-align:center;">
-    <h1 style="font-size:34px;letter-spacing:3px;">GAO ZE QIAN</h1>
-
-    <p style="max-width:700px;margin:auto;margin-top:20px;">
-      艺术家 / 设计师 / 三维与材料研究者<br><br>
-
-      南京艺术学院 · 玻璃艺术专业（大二）<br><br>
-
-      我的创作围绕“数字生成 → 材料转译 → 物理实现”，
-      将AI生成、三维建模与传统玻璃工艺结合，
-      构建跨媒介的视觉系统。<br><br>
-
+  <div style="text-align:center;width:100%;">
+    <h1 style="font-size:34px;">GAO ZE QIAN</h1>
+    <p style="margin-top:20px;">
+      南京艺术学院 · 玻璃艺术<br><br>
       Email: 3586822968@qq.com<br>
       WeChat: gaozeqian2006<br>
       Douyin: 无聊艺术家<br>
@@ -147,43 +120,35 @@ p {
   </div>
 </section>
 
-<!-- THREE -->
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js"></script>
+<!-- 本地JS -->
+<script src="./js/three.min.js"></script>
+<script src="./js/GLTFLoader.js"></script>
+<script src="./js/RGBELoader.js"></script>
 
 <script>
 
 let page = 1;
 
-// ===== 场景 =====
 const scene = new THREE.Scene();
 
-// ===== 相机 =====
 const camera = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, 0.1, 100);
 camera.position.set(0,0.2,4);
 
-// ===== 渲染 =====
 const renderer = new THREE.WebGLRenderer({
   canvas: document.querySelector("#webgl"),
   antialias: true
 });
 renderer.setSize(innerWidth, innerHeight);
-renderer.physicallyCorrectLights = true;
-renderer.outputEncoding = THREE.sRGBEncoding;
 
-// ===== HDR环境 =====
-new THREE.RGBELoader().load(
-'https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_09_1k.hdr',
-(texture)=>{
+// HDR本地加载
+new THREE.RGBELoader().load('./hdr/studio.hdr', (texture)=>{
   texture.mapping = THREE.EquirectangularReflectionMapping;
   scene.environment = texture;
 });
 
-// ===== 模型 =====
 let model;
 
-new THREE.GLTFLoader().load("./model.glb",(gltf)=>{
+new THREE.GLTFLoader().load("./models/model.glb",(gltf)=>{
   model = gltf.scene;
 
   model.traverse((child)=>{
@@ -192,10 +157,6 @@ new THREE.GLTFLoader().load("./model.glb",(gltf)=>{
         transmission: 1,
         thickness: 1.5,
         roughness: 0,
-        metalness: 0,
-        envMapIntensity: 1.5,
-        clearcoat: 1,
-        clearcoatRoughness: 0,
         ior: 1.45
       });
     }
@@ -204,14 +165,11 @@ new THREE.GLTFLoader().load("./model.glb",(gltf)=>{
   scene.add(model);
 });
 
-// ===== 动画目标 =====
 let targetPos = new THREE.Vector3();
 let targetScale = new THREE.Vector3();
 let targetCam = new THREE.Vector3();
 
-// ===== 切页 =====
 function switchPage(i){
-
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   document.getElementById("p"+i).classList.add("active");
 
@@ -220,19 +178,16 @@ function switchPage(i){
     targetScale.set(1.8,1.8,1.8);
     targetCam.set(0,0.2,4);
   }
-
   if(i===2){
     targetPos.set(2,0,-1);
     targetScale.set(1,1,1);
     targetCam.set(0,0.2,3);
   }
-
   if(i===3){
     targetPos.set(-2,0,-1);
     targetScale.set(0.9,0.9,0.9);
     targetCam.set(0.3,0.2,3);
   }
-
   if(i===4){
     targetPos.set(0,-1,0);
     targetScale.set(0.6,0.6,0.6);
@@ -240,52 +195,45 @@ function switchPage(i){
   }
 }
 
-// ===== 手势系统（PC + 手机） =====
-let lock = false;
-let startY = 0;
+// 手势
+let startY=0, lock=false;
 
-function changePage(direction){
+function changePage(d){
   if(lock) return;
-  lock = true;
+  lock=true;
 
-  if(direction==="down") page++;
+  if(d==="down") page++;
   else page--;
 
-  page = Math.max(1, Math.min(4, page));
+  page=Math.max(1,Math.min(4,page));
   switchPage(page);
 
   setTimeout(()=>lock=false,700);
 }
 
-// PC
-window.addEventListener("wheel",(e)=>{
+window.addEventListener("wheel",e=>{
   if(e.deltaY>0) changePage("down");
   else changePage("up");
 });
 
-// 手机
-window.addEventListener("touchstart",(e)=>{
-  startY = e.touches[0].clientY;
+window.addEventListener("touchstart",e=>{
+  startY=e.touches[0].clientY;
 });
 
-window.addEventListener("touchend",(e)=>{
-  let endY = e.changedTouches[0].clientY;
-  let delta = startY - endY;
-
+window.addEventListener("touchend",e=>{
+  let delta=startY-e.changedTouches[0].clientY;
   if(Math.abs(delta)<50) return;
-
   if(delta>0) changePage("down");
   else changePage("up");
 });
 
-// ===== 动画 =====
 function animate(){
   requestAnimationFrame(animate);
 
   if(model){
     model.position.lerp(targetPos,0.08);
     model.scale.lerp(targetScale,0.08);
-    model.rotation.y += 0.003;
+    model.rotation.y+=0.003;
   }
 
   camera.position.lerp(targetCam,0.05);
@@ -293,13 +241,6 @@ function animate(){
   renderer.render(scene,camera);
 }
 animate();
-
-// ===== resize =====
-addEventListener("resize",()=>{
-  camera.aspect = innerWidth/innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth,innerHeight);
-});
 
 </script>
 
