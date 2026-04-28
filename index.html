@@ -1,80 +1,212 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh">
 <head>
-<meta charset="utf-8">
-<title>Three Fix</title>
+<meta charset="UTF-8">
+<title>Art Exhibition</title>
+
 <style>
-  body { margin:0; overflow:hidden; }
+body {
+  margin: 0;
+  overflow: hidden;
+  background: #0a0a0a;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+/* 展览标题 */
+.hero {
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  color: white;
+  z-index: 10;
+  letter-spacing: 2px;
+}
+
+.hero h1 {
+  font-weight: 200;
+  font-size: 14px;
+  margin: 0;
+}
+
+.hero p {
+  opacity: 0.5;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+/* 作品信息 */
+.ui {
+  position: absolute;
+  bottom: 40px;
+  left: 40px;
+  color: white;
+  z-index: 10;
+  font-size: 12px;
+  opacity: 0.7;
+  letter-spacing: 1px;
+}
+
+/* loading */
+.loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  color: white;
+  font-size: 12px;
+  opacity: 0.5;
+  z-index: 20;
+}
 </style>
 </head>
+
 <body>
 
+<div class="hero">
+  <h1>MIKEY STUDIO</h1>
+  <p>Art / Objects / 3D Works</p >
+</div>
+
+<div class="ui">
+  WORK / 01<br>
+  Untitled Sculpture
+</div>
+
+<div class="loading" id="loading">Loading...</div>
+
+<canvas id="webgl"></canvas>
+
+<!-- Three.js -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
 <script>
-console.log("JS开始执行");
+console.log("EXHIBITION START");
 
+// =====================
+// Scene
+// =====================
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x222222);
+scene.background = new THREE.Color(0x0a0a0a);
 
+// =====================
+// Camera
+// =====================
 const camera = new THREE.PerspectiveCamera(
-  60,
+  45,
   window.innerWidth / window.innerHeight,
   0.1,
-  1000
+  100
 );
-camera.position.set(0, 0, 3);
+camera.position.set(0, 0, 3.5);
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+// =====================
+// Renderer（电影级）
+// =====================
+const renderer = new THREE.WebGLRenderer({
+  canvas: document.querySelector("#webgl"),
+  antialias: true,
+  alpha: true
+});
+
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.outputEncoding = THREE.sRGBEncoding;
-document.body.appendChild(renderer.domElement);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-// ✅ 控制器（你缺的就是这个）
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
+renderer.outputEncoding = THREE.sRGBEncoding;
+
+// =====================
+// Controls（展览级）
+// =====================
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
+controls.dampingFactor = 0.05;
 
-// 灯光
-scene.add(new THREE.DirectionalLight(0xffffff, 3).position.set(2,2,2));
-scene.add(new THREE.AmbientLight(0xffffff, 1));
-scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 2));
+controls.enablePan = false;
+controls.minDistance = 2.5;
+controls.maxDistance = 5;
 
-// loader
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.4;
+
+// =====================
+// Lights（展览灯光）
+// =====================
+const keyLight = new THREE.DirectionalLight(0xffffff, 2.2);
+keyLight.position.set(3, 3, 3);
+
+const fillLight = new THREE.DirectionalLight(0xffffff, 0.8);
+fillLight.position.set(-3, 1, -2);
+
+const ambient = new THREE.AmbientLight(0xffffff, 0.35);
+
+scene.add(keyLight, fillLight, ambient);
+
+// =====================
+// HDR 环境（高级感关键）
+// =====================
+const pmrem = new THREE.PMREMGenerator(renderer);
+
+new THREE.TextureLoader().load(
+  "https://threejs.org/examples/textures/equirectangular/royal_esplanade_1k.jpg",
+  (texture) => {
+
+    const envMap = pmrem.fromEquirectangular(texture).texture;
+    scene.environment = envMap;
+
+    texture.dispose();
+    pmrem.dispose();
+  }
+);
+
+// =====================
+// GLB Loader
+// =====================
 const loader = new THREE.GLTFLoader();
 
-loader.load("./model.glb", function(gltf){
+loader.load("./model.glb", (gltf) => {
 
   const model = gltf.scene;
 
+  // 居中
   const box = new THREE.Box3().setFromObject(model);
   const center = box.getCenter(new THREE.Vector3());
-  const size = box.getSize(new THREE.Vector3());
-
   model.position.sub(center);
 
-  const maxDim = Math.max(size.x, size.y, size.z);
-  const scale = 2 / maxDim;
-  model.scale.setScalar(scale);
+  // 缩放统一
+  const size = box.getSize(new THREE.Vector3());
+  const max = Math.max(size.x, size.y, size.z);
+  model.scale.setScalar(2.2 / max);
 
   scene.add(model);
 
-  camera.lookAt(0, 0, 0);
+  document.getElementById("loading").style.display = "none";
+
+}, undefined, (err) => {
+  console.error("模型加载失败", err);
+  document.getElementById("loading").innerText = "Model Load Failed";
 });
 
-// 渲染
-function animate(){
+// =====================
+// Render Loop
+// =====================
+function animate() {
   requestAnimationFrame(animate);
 
-  controls.update(); // ✅ 现在不会报错了
+  controls.update();
+
   renderer.render(scene, camera);
 }
+
 animate();
 
-// resize
-window.addEventListener("resize", ()=>{
-  camera.aspect = window.innerWidth/window.innerHeight;
+// =====================
+// Resize
+// =====================
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
