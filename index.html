@@ -2,28 +2,16 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<title>GAO ZE QIAN / EXHIBITION</title>
+<title>GAO ZE QIAN / GLASS PROCESS</title>
 
 <style>
 html, body {
   margin: 0;
   height: 100%;
-  overflow-y: scroll;
-  scroll-snap-type: y mandatory; /* ⭐ 核心：吸附滚动 */
+  overflow: hidden;
   background: #0a0a0a;
   font-family: Helvetica, Arial, sans-serif;
   color: white;
-}
-
-/* 每页吸附 */
-.page {
-  height: 100vh;
-  scroll-snap-align: start;
-  position: relative;
-  display: flex;
-  align-items: center;
-  padding: 0 8vw;
-  box-sizing: border-box;
 }
 
 /* canvas */
@@ -33,41 +21,53 @@ canvas {
   left: 0;
 }
 
-/* ===== layout ===== */
+/* ===== PAGE ===== */
+.page {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: none;
+  padding: 10vh 8vw;
+  box-sizing: border-box;
+}
+
+.page.active {
+  display: flex;
+}
+
+/* layout */
 .left, .right {
   width: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .center {
   width: 100%;
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 
-/* ===== text ===== */
+/* text */
 h1 {
   font-size: 26px;
   font-weight: 300;
+  letter-spacing: 1px;
 }
 
 p {
   font-size: 13px;
   line-height: 1.8;
   opacity: 0.75;
-  max-width: 420px;
+  max-width: 480px;
 }
 
-/* ===== 关键：限制3D交互区域 ===== */
-#modelArea {
-  width: 60%;
-  height: 60%;
-  margin: auto;
-  pointer-events: auto; /* 只允许这里交互 */
-}
-
-/* 页面外禁止3D抢手势 */
-body {
-  overflow-x: hidden;
+/* poster */
+.poster {
+  width: 420px; /* ⭐ 放大（解决空） */
+  opacity: 0.95;
 }
 
 /* header */
@@ -80,56 +80,84 @@ body {
   opacity: 0.7;
   z-index: 10;
 }
+
+/* next hint */
+.hint {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  opacity: 0.4;
+}
 </style>
 </head>
 
 <body>
 
-<div class="header">GAO ZE QIAN / GLASS EXHIBITION</div>
+<div class="header">GAO ZE QIAN / GLASS PROCESS</div>
+<div class="hint">scroll ↓</div>
 
 <canvas id="webgl"></canvas>
 
 <!-- ================= PAGE 1 ================= -->
-<section class="page">
-  <div id="modelArea"></div>
+<section class="page active" id="p1">
+  <div style="width:100%;height:100%;display:flex;justify-content:center;align-items:center;">
+    <div id="modelArea"></div>
+  </div>
 </section>
 
 <!-- ================= PAGE 2 ================= -->
-<section class="page">
+<section class="page" id="p2">
   <div class="left">
-    <h1>Glass Object Study</h1>
+    <h1>Material Translation</h1>
     <p>
-      通过玻璃材料的数字化重构，
-      探索光与结构之间的关系。
-      作品不再是物体，而是“可被观看的空间系统”。
+      该作品源自Midjourney生成图像与混元AI生成模型，
+      并在Cinema4D中进行结构重建。
+      最终通过3D打印、石膏翻模、硅胶开模、蜡模制作、
+      耐火石膏铸型与高温玻璃熔制完成实体转化。
+      这一过程不仅是造型的实现，更是材料从数字到物理的连续生成。
     </p >
+  </div>
+
+  <div class="right">
+    < img src="./glass.png" class="poster">
   </div>
 </section>
 
 <!-- ================= PAGE 3 ================= -->
-<section class="page">
-  <div class="left"></div>
-  <div class="center">
-    <img src="./glass.png" style="width:220px;opacity:0.9;">
+<section class="page" id="p3">
+  <div class="left">
+    < img src="./glass.png" class="poster" style="width:300px;">
   </div>
+
   <div class="right">
-    <h1>Material Field</h1>
+    <h1>Production Pipeline</h1>
     <p>
-      平面与三维叠加形成视觉材料系统，
-      玻璃成为一种“光的容器”。
+      Midjourney视觉生成 → 混元AI结构建模 →
+      Cinema4D拓扑优化 → 3D打印原型 →
+      石膏/硅胶翻模 → 蜡模精修 →
+      耐火石膏模 → 高温窑炉玻璃铸造。
+      每一步都不是“制作”，而是材料状态的转换。
     </p >
   </div>
 </section>
 
 <!-- ================= PAGE 4 ================= -->
-<section class="page">
+<section class="page" id="p4">
   <div style="width:100%;text-align:center;">
     <h1 style="font-size:32px;letter-spacing:3px;">GAO ZE QIAN</h1>
-    <p style="max-width:600px;margin:auto;margin-top:20px;">
-      南京艺术学院 · 玻璃艺术专业（大二）<br><br>
 
-      我专注于材料、空间与数字媒介的交叉实验，
-      试图在三维建模与视觉系统之间建立新的表达语言。<br><br>
+    <p style="max-width:650px;margin:auto;margin-top:20px;">
+      艺术家 / 设计师 / 三维与材料研究者<br><br>
+
+      我目前就读于南京艺术学院玻璃艺术专业（大二）。
+      我的创作围绕“数字生成 → 物理转译 → 材料再造”的链路展开，
+      通过AI生成、三维建模与传统玻璃工艺的结合，
+      探索一种新的视觉生产体系。<br><br>
+
+      在实践中，我关注的不只是形态，而是“材料如何成为时间的记录”。
+      每一个作品都是一个从算法到窑炉的完整路径。<br><br>
 
       Email: 3586822968@qq.com<br>
       WeChat: gaozeqian2006<br>
@@ -146,28 +174,28 @@ body {
 
 <script>
 
-// ================= SCENE =================
+let page = 1;
+
+// ===== SCENE =====
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0a0a0a);
 
-// ================= CAMERA =================
+// ===== CAMERA =====
 const camera = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, 0.1, 100);
 camera.position.set(0,0.2,3.6);
 
-// ================= RENDERER =================
-const renderer = new THREE.WebGLRenderer({
-  canvas: document.querySelector("#webgl"),
-  antialias: true
-});
+// ===== RENDERER =====
+const renderer = new THREE.WebGLRenderer({ antialias:true });
 renderer.setSize(innerWidth, innerHeight);
+document.body.appendChild(renderer.domElement);
 
-// ================= LIGHT =================
-scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-const dir = new THREE.DirectionalLight(0xffffff, 2);
+// ===== LIGHT =====
+scene.add(new THREE.AmbientLight(0xffffff,0.4));
+const dir = new THREE.DirectionalLight(0xffffff,2);
 dir.position.set(3,5,2);
 scene.add(dir);
 
-// ================= MODEL =================
+// ===== MODEL =====
 let model;
 
 new THREE.GLTFLoader().load("./model.glb",(gltf)=>{
@@ -175,41 +203,65 @@ new THREE.GLTFLoader().load("./model.glb",(gltf)=>{
   scene.add(model);
 });
 
-// ================= CONTROLS（只绑定模型区域） =================
+// ===== CONTROL =====
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.enablePan = false;
-controls.enableZoom = false;
 
-// ⭐ 关键：只在第一屏允许交互
-let allowControl = true;
-
-window.addEventListener("scroll",()=>{
-  const page = Math.round(window.scrollY / window.innerHeight);
-
-  allowControl = (page === 0);
+// ===== PAGE SWITCH =====
+window.addEventListener("scroll", () => {
+  const p = Math.round(window.scrollY / window.innerHeight);
+  if(p+1 !== page){
+    switchPage(p+1);
+  }
 });
 
-// ================= RESIZE =================
+function switchPage(i){
+
+  page = i;
+
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById("p"+i).classList.add("active");
+
+  // ===== MODEL LOGIC =====
+  if(model){
+
+    if(i === 1){
+      // 回到中心
+      model.position.set(0,0,0);
+      model.scale.set(1,1,1);
+    }
+
+    if(i === 2){
+      model.position.set(2,0,-1); // 退出
+      model.scale.set(0.6,0.6,0.6);
+    }
+
+    if(i === 3){
+      model.position.set(-2,0,-1); // 侧边进入
+      model.scale.set(0.5,0.5,0.5);
+    }
+
+    if(i === 4){
+      model.position.set(0,-1,0);
+      model.scale.set(0.4,0.4,0.4);
+    }
+  }
+}
+
+// ===== RESIZE =====
 addEventListener("resize",()=>{
   camera.aspect = innerWidth/innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth,innerHeight);
 });
 
-// ================= ANIMATE =================
+// ===== LOOP =====
 function animate(){
   requestAnimationFrame(animate);
 
-  if(model){
-    model.rotation.y += 0.002;
-  }
-
-  // ⭐ 禁止误触拖动（核心）
-  if(!allowControl){
-    controls.enabled = false;
-  } else {
-    controls.enabled = true;
+  if(model && page===1){
+    model.rotation.y += 0.003;
   }
 
   controls.update();
