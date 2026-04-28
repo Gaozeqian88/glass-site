@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<title>GAO ZE QIAN / EXHIBITION</title>
+<title>GAO ZE QIAN / GLASS EXHIBITION</title>
 
 <style>
 body {
@@ -13,14 +13,7 @@ body {
   color: white;
 }
 
-/* canvas */
-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-}
-
-/* ===== 展览分区 ===== */
+/* 🎯 关键修复：允许3D交互 */
 section {
   height: 100vh;
   display: flex;
@@ -28,25 +21,54 @@ section {
   padding: 0 10vw;
   position: relative;
   z-index: 10;
+
+  pointer-events: none; /* 让鼠标穿透到three.js */
 }
 
-/* 背景层（空间变化感） */
-section:nth-child(odd) {
-  background: rgba(255,255,255,0.02);
-}
-
-section:nth-child(even) {
-  background: rgba(255,255,255,0.00);
-}
-
-/* 文本 */
+/* 只有文字可点击 */
 .text {
   max-width: 420px;
   font-weight: 200;
   line-height: 1.7;
   letter-spacing: 0.5px;
+
+  pointer-events: auto;
 }
 
+/* 章节背景节奏 */
+section:nth-child(odd) {
+  background: rgba(255,255,255,0.02);
+}
+
+/* canvas */
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+/* 顶部信息 */
+.header {
+  position: fixed;
+  top: 40px;
+  left: 40px;
+  font-size: 12px;
+  letter-spacing: 2px;
+  opacity: 0.7;
+  z-index: 20;
+}
+
+/* 当前章节 */
+.chapter {
+  position: fixed;
+  right: 40px;
+  top: 40px;
+  font-size: 11px;
+  opacity: 0.4;
+  z-index: 20;
+}
+
+/* 文本 */
 h1 {
   font-size: 28px;
   font-weight: 300;
@@ -59,48 +81,16 @@ h2 {
   margin-bottom: 18px;
 }
 
-/* 右侧 */
 .right {
   margin-left: auto;
   text-align: right;
-}
-
-/* 顶部 */
-.header {
-  position: fixed;
-  top: 40px;
-  left: 40px;
-  font-size: 12px;
-  letter-spacing: 2px;
-  opacity: 0.7;
-  z-index: 20;
-}
-
-/* 展览章节提示 */
-.chapter {
-  position: fixed;
-  right: 40px;
-  top: 40px;
-  font-size: 11px;
-  opacity: 0.4;
-  z-index: 20;
-}
-
-/* footer */
-.footer {
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  opacity: 0.7;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">GAO ZE QIAN / ART & DESIGN</div>
+<div class="header">GAO ZE QIAN / GLASS STUDY</div>
 <div class="chapter" id="chapter">WORK 01</div>
 
 <canvas id="webgl"></canvas>
@@ -109,26 +99,26 @@ h2 {
 <section>
   <div class="text">
     <h1>Glass Object Study</h1>
-    <h2>3D Material Exploration</h2>
-    以玻璃结构为核心的数字化实验，通过光线与空间关系重构物体的存在方式。
+    <h2>Material × Light</h2>
+    通过玻璃材料的折射与透明性，探索数字空间中的物体存在方式。
   </div>
 </section>
 
 <!-- SECTION 2 -->
 <section>
   <div class="text right">
-    <h1>Light Construction</h1>
-    <h2>Spatial Design</h2>
-    光不是照亮物体，而是塑造空间本身的结构语言。
+    <h1>Light Field</h1>
+    <h2>Spatial Construction</h2>
+    光不再只是照明，而是空间结构的一部分。
   </div>
 </section>
 
 <!-- SECTION 3 -->
 <section>
   <div class="text">
-    <h1>Glass Poster Field</h1>
-    <h2>2D × 3D Hybrid System</h2>
-    平面图像与三维空间叠加，使视觉成为连续的体验结构。
+    <h1>Material Archive</h1>
+    <h2>Glass References</h2>
+    结合真实玻璃艺术参考图像与数字建模实验。
   </div>
 </section>
 
@@ -136,18 +126,12 @@ h2 {
 <section>
   <div class="text right">
     <h1>GAO ZE QIAN</h1>
-    <h2>Artist / Designer / Curator</h2>
+    <h2>Artist / Designer</h2>
     南京艺术学院 · 玻璃艺术专业（大二）  
     视觉设计师 / 三维艺术创作者  
-    专注于材料、空间与数字表达的跨媒介实验。
+    专注材料 × 空间 × 数字艺术实验。
   </div>
 </section>
-
-<!-- FOOTER -->
-<div class="footer">
-  <div>EXHIBITION END</div>
-  <div style="font-size:12px;opacity:0.5;margin-top:10px;">© GAO ZE QIAN</div>
-</div>
 
 <!-- THREE -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
@@ -160,9 +144,16 @@ h2 {
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0a0a0a);
 
-// ================= CAMERA =================
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 100);
-camera.position.set(0, 0.6, 3.2); // 👈 已经“往下看展台”
+// ================= CAMERA（关键修复：避免遮头） =================
+const camera = new THREE.PerspectiveCamera(
+  45,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  100
+);
+
+// 👇 往下看展台（解决“头被切”）
+camera.position.set(0, 0.35, 3.8);
 
 // ================= RENDERER =================
 const renderer = new THREE.WebGLRenderer({
@@ -173,26 +164,28 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.15;
+renderer.toneMappingExposure = 1.2;
 renderer.outputEncoding = THREE.sRGBEncoding;
 
-// ================= LIGHT =================
-const key = new THREE.DirectionalLight(0xffffff, 2.2);
+// ================= LIGHT（美术馆射灯） =================
+const key = new THREE.DirectionalLight(0xffffff, 2.5);
 key.position.set(3, 5, 2);
 
-const fill = new THREE.DirectionalLight(0xffffff, 0.8);
+const fill = new THREE.DirectionalLight(0xffffff, 0.7);
 fill.position.set(-3, 2, -2);
 
 const ambient = new THREE.AmbientLight(0xffffff, 0.25);
 
 scene.add(key, fill, ambient);
 
-// ================= CONTROLS =================
+// ================= CONTROLS（展览级） =================
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.enablePan = false;
 controls.autoRotate = true;
 controls.autoRotateSpeed = 0.25;
+controls.minDistance = 2.8;
+controls.maxDistance = 4.2;
 
 // ================= MODEL =================
 let model;
@@ -209,10 +202,10 @@ loader.load("./model.glb", (gltf) => {
   const size = box.getSize(new THREE.Vector3());
   const max = Math.max(size.x, size.y, size.z);
 
-  model.scale.setScalar(2.4 / max);
+  model.scale.setScalar(2.3 / max);
 
-  // ⭐ 关键：往下放（展台感）
-  model.position.y = -0.35;
+  // 👇 展台下沉（关键）
+  model.position.y = -0.55;
 
   scene.add(model);
 });
@@ -225,7 +218,7 @@ const poster = new THREE.Mesh(
   new THREE.MeshBasicMaterial({ map: tex, transparent: true })
 );
 
-poster.position.set(2.3, 0.2, -1);
+poster.position.set(2.4, 0.2, -1);
 scene.add(poster);
 
 // ================= SCROLL =================
@@ -234,14 +227,13 @@ let scrollY = 0;
 window.addEventListener("scroll", () => {
   scrollY = window.scrollY;
 
-  // 章节变化
   const index = Math.floor(scrollY / window.innerHeight) + 1;
   document.getElementById("chapter").innerText = "WORK 0" + index;
 });
 
 // ================= RESIZE =================
 window.addEventListener("resize", () => {
-  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
@@ -252,18 +244,18 @@ function animate() {
 
   const t = scrollY / window.innerHeight;
 
-  // 📷 镜头轻微推进
-  camera.position.z = 3.2 - t * 0.8;
-  camera.position.y = 0.6 - t * 0.3;
+  // 🎯 镜头推进（Apple风）
+  camera.position.z = 3.8 - t * 0.7;
+  camera.position.y = 0.35 - t * 0.25;
 
-  // 🎯 模型呼吸
+  // 🎯 模型轻微呼吸
   if (model) {
     model.rotation.y += 0.0025;
-    model.position.y = -0.35 + Math.sin(t * 2) * 0.02;
+    model.position.y = -0.55 + Math.sin(t * 2) * 0.02;
   }
 
   // 🎯 海报漂浮
-  poster.position.y = 0.2 + Math.sin(t * 2) * 0.15;
+  poster.position.y = 0.2 + Math.sin(t * 2) * 0.12;
 
   controls.update();
   renderer.render(scene, camera);
