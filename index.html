@@ -14,14 +14,16 @@ html, body {
   color: white;
 }
 
-/* canvas */
+/* canvas在最底层 */
 canvas {
   position: fixed;
   top: 0;
   left: 0;
+  z-index: 0;
+  pointer-events: none;
 }
 
-/* ===== PAGE SYSTEM ===== */
+/* 页面在上层 */
 .page {
   position: absolute;
   width: 100%;
@@ -29,6 +31,7 @@ canvas {
   display: none;
   padding: 10vh 8vw;
   box-sizing: border-box;
+  z-index: 2;
 }
 
 .page.active {
@@ -50,12 +53,10 @@ canvas {
   align-items: center;
 }
 
-/* typography */
+/* text */
 h1 {
   font-size: 28px;
   font-weight: 300;
-  letter-spacing: 1px;
-  margin-bottom: 12px;
 }
 
 p {
@@ -65,11 +66,9 @@ p {
   max-width: 520px;
 }
 
-/* image */
+/* poster */
 .poster {
   width: 420px;
-  opacity: 0.95;
-  mix-blend-mode: screen;
 }
 
 /* header */
@@ -82,86 +81,55 @@ p {
   opacity: 0.6;
   z-index: 10;
 }
-
-/* minimal lines (高级感关键) */
-.line {
-  position: absolute;
-  width: 1px;
-  height: 60%;
-  background: rgba(255,255,255,0.05);
-  left: 6vw;
-  top: 20%;
-}
 </style>
 </head>
 
 <body>
 
-<div class="header">GAO ZE QIAN / GLASS RITUAL SYSTEM</div>
+<div class="header">GAO ZE QIAN / GLASS RITUAL</div>
 
 <canvas id="webgl"></canvas>
 
-<!-- ================= PAGE 1 ================= -->
+<!-- PAGE 1 -->
 <section class="page active" id="p1">
-  <div class="center">
-    <div id="modelArea"></div>
-  </div>
+  <div class="center"></div>
 </section>
 
-<!-- ================= PAGE 2 ================= -->
+<!-- PAGE 2 -->
 <section class="page" id="p2">
-  <div class="line"></div>
-
   <div class="left">
-    <h1>Material Translation System</h1>
+    <h1>Material Translation</h1>
     <p>
-      Midjourney视觉生成 → 混元AI建模 → Cinema4D结构重建 →
-      3D打印原型 → 石膏翻模 → 硅胶开模 → 蜡模修型 →
-      耐火石膏 → 高温玻璃熔制。
-      <br><br>
-      作品不是“形态”，而是材料从数字到物理的连续转译过程。
+      AI生成 → C4D → 3D打印 → 翻模 → 玻璃烧制。
+      数字到物理的转译过程。
     </p >
   </div>
-
   <div class="right">
-    <div id="miniModel"></div>
+    < img src="./glass.png" class="poster">
   </div>
 </section>
 
-<!-- ================= PAGE 3 ================= -->
+<!-- PAGE 3 -->
 <section class="page" id="p3">
   <div class="left">
     < img src="./glass.png" class="poster">
   </div>
-
   <div class="right">
-    <h1>Glass Field Study</h1>
+    <h1>Process</h1>
     <p>
-      玻璃在这里不再是材料，而是一种“光的容器结构”。
-      海报与三维模型共同构成材料证据系统。
+      材料不是结果，而是过程本身。
     </p >
   </div>
 </section>
 
-<!-- ================= PAGE 4 ================= -->
+<!-- PAGE 4 -->
 <section class="page" id="p4">
   <div style="width:100%;text-align:center;">
-    <h1 style="font-size:34px;letter-spacing:3px;">GAO ZE QIAN</h1>
-
-    <p style="max-width:700px;margin:auto;margin-top:20px;">
-      艺术家 / 设计师 / 玻璃材料研究者<br><br>
-
-      我目前就读于南京艺术学院玻璃艺术专业（大二），
-      我的创作围绕“数字生成 → 材料转译 → 物理凝固”的路径展开。
-      我关注的不只是造型，而是“材料如何记录时间”。<br><br>
-
-      在实践中，我将AI生成、三维建模与传统玻璃工艺结合，
-      构建一种跨媒介的视觉生产体系。<br><br>
-
+    <h1 style="font-size:34px;">GAO ZE QIAN</h1>
+    <p style="margin-top:20px;">
+      南京艺术学院 · 玻璃艺术<br><br>
       Email: 3586822968@qq.com<br>
-      WeChat: gaozeqian2006<br>
-      Douyin: 无聊艺术家<br>
-      Tel: 18751982910
+      WeChat: gaozeqian2006
     </p >
   </div>
 </section>
@@ -172,29 +140,29 @@ p {
 
 <script>
 
-// ================= STATE =================
+// ===== STATE =====
 let page = 1;
 
-// ================= SCENE =================
+// ===== SCENE =====
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0a0a0a);
 
-// ================= CAMERA =================
 const camera = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, 0.1, 100);
 camera.position.set(0,0.2,3.6);
 
-// ================= RENDERER =================
-const renderer = new THREE.WebGLRenderer({ antialias:true });
-renderer.setSize(innerWidth,innerHeight);
-document.body.appendChild(renderer.domElement);
+const renderer = new THREE.WebGLRenderer({
+  canvas: document.querySelector("#webgl"),
+  antialias: true
+});
+renderer.setSize(innerWidth, innerHeight);
 
-// ================= LIGHT =================
-scene.add(new THREE.AmbientLight(0xffffff,0.35));
+// ===== LIGHT =====
+scene.add(new THREE.AmbientLight(0xffffff,0.4));
 const dir = new THREE.DirectionalLight(0xffffff,2);
 dir.position.set(3,5,2);
 scene.add(dir);
 
-// ================= MODEL =================
+// ===== MODEL =====
 let model;
 
 new THREE.GLTFLoader().load("./model.glb",(gltf)=>{
@@ -202,7 +170,40 @@ new THREE.GLTFLoader().load("./model.glb",(gltf)=>{
   scene.add(model);
 });
 
-// ================= PAGE CONTROL =================
+// ===== 目标状态（用于动画插值）=====
+let targetPos = new THREE.Vector3(0,0,0);
+let targetScale = new THREE.Vector3(1,1,1);
+
+// ===== 页面切换 =====
+function switchPage(i){
+
+  document.querySelectorAll(".page")
+    .forEach(p=>p.classList.remove("active"));
+
+  document.getElementById("p"+i).classList.add("active");
+
+  if(i===1){
+    targetPos.set(0,0,0);
+    targetScale.set(1.8,1.8,1.8);
+  }
+
+  if(i===2){
+    targetPos.set(2,0,-1);
+    targetScale.set(1,1,1);
+  }
+
+  if(i===3){
+    targetPos.set(-2,0,-1);
+    targetScale.set(0.9,0.9,0.9);
+  }
+
+  if(i===4){
+    targetPos.set(0,-1,0);
+    targetScale.set(0.6,0.6,0.6);
+  }
+}
+
+// ===== 滚轮翻页 =====
 let lock = false;
 
 window.addEventListener("wheel",(e)=>{
@@ -218,60 +219,38 @@ window.addEventListener("wheel",(e)=>{
   switchPage(page);
 
   setTimeout(()=>lock=false, 800);
+
 });
 
-// ================= SWITCH SYSTEM =================
-function switchPage(i){
-
-  document.querySelectorAll(".page")
-    .forEach(p=>p.classList.remove("active"));
-
-  document.getElementById("p"+i).classList.add("active");
-
-  if(!model) return;
-
-  // ===== PAGE STATES =====
-
-  if(i === 1){
-    model.position.set(0,0,0);
-    model.scale.set(1.8,1.8,1.8); // 展品最大化
-  }
-
-  if(i === 2){
-    model.position.set(2,0,-1);
-    model.scale.set(1,1,1);
-  }
-
-  if(i === 3){
-    model.position.set(-2,0,-1);
-    model.scale.set(0.9,0.9,0.9);
-  }
-
-  if(i === 4){
-    model.position.set(0,-1,0);
-    model.scale.set(0.7,0.7,0.7);
-  }
-}
-
-// ================= RESIZE =================
-addEventListener("resize",()=>{
-  camera.aspect = innerWidth/innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth,innerHeight);
-});
-
-// ================= LOOP =================
+// ===== 动画循环 =====
 function animate(){
   requestAnimationFrame(animate);
 
-  if(model && page === 1){
-    model.rotation.y += 0.003;
+  if(model){
+
+    // ⭐ 平滑移动（核心）
+    model.position.lerp(targetPos, 0.08);
+    model.scale.lerp(targetScale, 0.08);
+
+    // 第一屏轻微旋转
+    if(page===1){
+      model.rotation.y += 0.003;
+    }else{
+      model.rotation.y += 0.01;
+    }
   }
 
   renderer.render(scene,camera);
 }
 
 animate();
+
+// ===== resize =====
+addEventListener("resize",()=>{
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
+});
 
 </script>
 
