@@ -1,167 +1,34 @@
-<!DOCTYPE html><html lang="zh">
+<!DOCTYPE html>
+<html>
 <head>
 <meta charset="UTF-8">
-<title>GAO ZEQIAN · GLASS ART</title><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500&family=Inter:wght@300&display=swap" rel="stylesheet"><style>
+<title>GLASS ART</title>
+
+<style>
 body{
   margin:0;
-  background:#0a0a0a;
-  color:#fff;
-  font-family:"Inter";
-  overflow-x:hidden;
-}
-
-/* 顶部 */
-.nav{
-  position:fixed;
-  top:30px;
-  left:40px;
-  letter-spacing:3px;
-  z-index:10;
-}
-
-/* 首屏 */
-.hero{
-  height:100vh;
-  position:relative;
-}
-
-#viewer{
-  width:100%;
-  height:100%;
-}
-
-/* 标题 */
-.title{
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  font-family:"Playfair Display";
-  font-size:80px;
-  letter-spacing:8px;
-  pointer-events:none;
-}
-
-/* 图片区 */
-.visual{
-  height:120vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
   background:#000;
+  color:#fff;
+  font-family:Arial;
+  text-align:center;
 }
 
-.visual img{
+h1{
+  margin-top:100px;
+}
+
+img{
   width:60%;
-  transition:1s;
+  margin-top:40px;
 }
+</style>
+</head>
 
-/* 文案 */
-.info{
-  padding:140px 80px;
-  max-width:900px;
-  margin:auto;
-}
+<body>
 
-.info h2{
-  font-size:40px;
-}
+<h1>GLASS ART</h1>
 
-.info p{
-  color:#aaa;
-  line-height:2;
-  margin-top:20px;
-}
-</style></head><body><div class="nav">GAO ZEQIAN</div><!-- 3D首屏 --><section class="hero">
-  <div id="viewer"></div>
-  <div class="title">GLASS ART</div>
-</section><!-- 图片 --><section class="visual">
-  < img src="https://raw.githubusercontent.com/Gaozeqian88/glass-site/main/glass.png">
-</section><!-- 文案 --><section class="info">
-  <h2>玻璃雕塑 01</h2>
-  <p>
-    通过玻璃的透明性与光影折射，构建出一种介于实体与虚无之间的形态语言。
-    <br><br>
-    作品在柔软与张力之间寻找平衡，使材质呈现出呼吸般的视觉状态。
-    <br><br>
-    Designed by Gao Zeqian · 2026
-  </p >
-</section><!-- Three.js --><script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/loaders/GLTFLoader.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/controls/OrbitControls.js"></script><script>
-const scene = new THREE.Scene();
+<img src="https://raw.githubusercontent.com/Gaozeqian88/glass-site/main/glass.png">
 
-const camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.1, 1000);
-camera.position.set(0,0,6);
-
-const renderer = new THREE.WebGLRenderer({antialias:true,alpha:true});
-renderer.setSize(window.innerWidth,window.innerHeight);
-renderer.outputEncoding = THREE.sRGBEncoding;
-renderer.physicallyCorrectLights = true;
-
-document.getElementById("viewer").appendChild(renderer.domElement);
-
-/* 灯光 */
-const light1 = new THREE.DirectionalLight(0xffffff,1.5);
-light1.position.set(5,5,5);
-scene.add(light1);
-
-const light2 = new THREE.DirectionalLight(0xffffff,1);
-light2.position.set(-5,3,-5);
-scene.add(light2);
-
-/* 控制 */
-const controls = new THREE.OrbitControls(camera,renderer.domElement);
-controls.enableDamping = true;
-controls.enablePan = false;
-
-/* 加载模型（如果存在） */
-const loader = new THREE.GLTFLoader();
-
-loader.load("glb格式.glb", function(gltf){
-
-  const model = gltf.scene;
-
-  const box = new THREE.Box3().setFromObject(model);
-  const center = box.getCenter(new THREE.Vector3());
-  model.position.sub(center);
-
-  const size = box.getSize(new THREE.Vector3());
-  const scale = 3 / size.length();
-  model.scale.setScalar(scale);
-
-  model.traverse((child)=>{
-    if(child.isMesh){
-      child.material = new THREE.MeshPhysicalMaterial({
-        color:0xffffff,
-        roughness:0.05,
-        transmission:1,
-        thickness:2,
-        ior:1.45,
-        clearcoat:1,
-        envMapIntensity:1.5
-      });
-    }
-  });
-
-  scene.add(model);
-
-  function animate(){
-    requestAnimationFrame(animate);
-    model.rotation.y += 0.002;
-    controls.update();
-    renderer.render(scene,camera);
-  }
-
-  animate();
-
-}, undefined, function(){
-  console.log("模型未加载（可以忽略）");
-});
-
-/* 自适应 */
-window.addEventListener("resize",()=>{
-  camera.aspect = window.innerWidth/window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth,window.innerHeight);
-});
-</script></body>
+</body>
 </html>
