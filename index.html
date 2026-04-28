@@ -24,9 +24,8 @@ scene.background = new THREE.Color(0x222222);
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
 camera.position.set(0, 0, 3);
 
-const renderer = new THREE.WebGLRenderer({antialias:true});
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.outputEncoding = THREE.sRGBEncoding;
 
 // 灯光（加强一点）
 const light = new THREE.DirectionalLight(0xffffff, 3);
@@ -36,19 +35,41 @@ scene.add(light);
 const ambient = new THREE.AmbientLight(0xffffff, 1);
 scene.add(ambient);
 
+const testGeo = new THREE.BoxGeometry();
+const testMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+const cube = new THREE.Mesh(testGeo, testMat);
+scene.add(cube);
+
+const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 2);
+scene.add(hemiLight);
+
 // loader
 const loader = new THREE.GLTFLoader();
 
 loader.load(
   "https://threejs.org/examples/models/gltf/DamagedHelmet/glTF-Binary/DamagedHelmet.glb",
   function(gltf){
+
     console.log("模型加载成功");
-    gltf.scene.scale.set(2,2,2);
-    scene.add(gltf.scene);
-  },
-  undefined,
-  function(err){
-    console.error("模型加载失败", err);
+
+    const model = gltf.scene;
+
+    // ✅ 自动居中 + 自动缩放（关键）
+    const box = new THREE.Box3().setFromObject(model);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+
+    model.position.sub(center); // 居中
+
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const scale = 2 / maxDim;
+    model.scale.set(scale, scale, scale);
+
+    scene.add(model);
+
+    // ✅ 镜头对准模型
+    camera.lookAt(0,0,0);
+
   }
 );
 
