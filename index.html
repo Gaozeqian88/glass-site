@@ -2,88 +2,126 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<title>Art Exhibition</title>
+<title>GAO ZE QIAN / EXHIBITION</title>
 
 <style>
 body {
   margin: 0;
-  overflow: hidden;
+  overflow-x: hidden;
   background: #0a0a0a;
   font-family: Helvetica, Arial, sans-serif;
+  color: white;
 }
 
-/* 展览标题 */
-.hero {
-  position: absolute;
+/* 3D画布 */
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+/* 滚动容器 */
+section {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 0 10vw;
+  position: relative;
+  z-index: 10;
+}
+
+/* 文本块 */
+.text {
+  max-width: 420px;
+  font-weight: 200;
+  line-height: 1.6;
+  letter-spacing: 0.5px;
+}
+
+h1 {
+  font-size: 28px;
+  font-weight: 300;
+  margin-bottom: 10px;
+}
+
+h2 {
+  font-size: 14px;
+  opacity: 0.6;
+  margin-bottom: 20px;
+}
+
+/* 右侧信息 */
+.right {
+  margin-left: auto;
+  text-align: right;
+}
+
+/* 顶部标题 */
+.header {
+  position: fixed;
   top: 40px;
   left: 40px;
-  color: white;
-  z-index: 10;
-  letter-spacing: 2px;
-}
-
-.hero h1 {
-  font-weight: 200;
-  font-size: 14px;
-  margin: 0;
-}
-
-.hero p {
-  opacity: 0.5;
-  font-size: 12px;
-  margin-top: 6px;
-}
-
-/* 作品信息 */
-.ui {
-  position: absolute;
-  bottom: 40px;
-  left: 40px;
-  color: white;
-  z-index: 10;
-  font-size: 12px;
-  opacity: 0.7;
-  letter-spacing: 1px;
-}
-
-/* loading */
-.loading {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%,-50%);
-  color: white;
-  font-size: 12px;
-  opacity: 0.5;
   z-index: 20;
+  font-size: 12px;
+  letter-spacing: 2px;
+  opacity: 0.7;
 }
 </style>
 </head>
 
 <body>
 
-<div class="hero">
-  <h1>MIKEY STUDIO</h1>
-  <p>Art / Objects / 3D Works</p >
+<div class="header">
+GAO ZE QIAN / ART & DESIGN
 </div>
-
-<div class="ui">
-  WORK / 01<br>
-  Untitled Sculpture
-</div>
-
-<div class="loading" id="loading">Loading...</div>
 
 <canvas id="webgl"></canvas>
 
-<!-- Three.js -->
+<!-- Section 1 -->
+<section>
+  <div class="text">
+    <h1>Works / Glass Study</h1>
+    <h2>Interactive 3D Object</h2>
+    这是一个以“玻璃结构”为核心的三维研究作品。通过材质折射与空间光影，探索物体在虚拟空间中的存在状态。
+  </div>
+</section>
+
+<!-- Section 2 -->
+<section>
+  <div class="text right">
+    <h1>Material / Light</h1>
+    <h2>Physical Simulation</h2>
+    光并不是照亮物体，而是塑造物体的方式。
+    在这个作品中，光被当作结构的一部分。
+  </div>
+</section>
+
+<!-- Section 3 -->
+<section>
+  <div class="text">
+    <h1>Poster / Glass Field</h1>
+    <h2>2D + 3D Hybrid</h2>
+    平面与三维之间的界限被模糊处理，使视觉成为一种连续空间体验。
+  </div>
+</section>
+
+<!-- Section 4 -->
+<section>
+  <div class="text right">
+    <h1>GAO ZE QIAN</h1>
+    <h2>Artist / Designer / Curator</h2>
+    南京艺术学院 · 玻璃艺术专业（大二）  
+    视觉设计师 / 三维设计创作者  
+    专注于“材料 × 空间 × 数字表达”的实验性创作。
+  </div>
+</section>
+
+<!-- libs -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
 <script>
-console.log("EXHIBITION START");
-
 // =====================
 // Scene
 // =====================
@@ -99,108 +137,90 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   100
 );
-camera.position.set(0, 0, 3.5);
+camera.position.set(0, 0, 3.2);
 
 // =====================
-// Renderer（电影级）
+// Renderer
 // =====================
 const renderer = new THREE.WebGLRenderer({
   canvas: document.querySelector("#webgl"),
-  antialias: true,
-  alpha: true
+  antialias: true
 });
 
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.15;
+renderer.toneMappingExposure = 1.1;
 renderer.outputEncoding = THREE.sRGBEncoding;
 
 // =====================
-// Controls（展览级）
+// Light (Apple风柔光)
+// =====================
+const key = new THREE.DirectionalLight(0xffffff, 2);
+key.position.set(3, 3, 3);
+
+const fill = new THREE.DirectionalLight(0xffffff, 0.8);
+fill.position.set(-3, 1, -2);
+
+const ambient = new THREE.AmbientLight(0xffffff, 0.3);
+
+scene.add(key, fill, ambient);
+
+// =====================
+// Controls（隐藏交互感，偏展览）
 // =====================
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
-controls.dampingFactor = 0.05;
-
 controls.enablePan = false;
-controls.minDistance = 2.5;
-controls.maxDistance = 5;
-
 controls.autoRotate = true;
-controls.autoRotateSpeed = 0.4;
+controls.autoRotateSpeed = 0.3;
+controls.minDistance = 2.5;
+controls.maxDistance = 4;
 
 // =====================
-// Lights（展览灯光）
+// GLB Model
 // =====================
-const keyLight = new THREE.DirectionalLight(0xffffff, 2.2);
-keyLight.position.set(3, 3, 3);
+let model;
 
-const fillLight = new THREE.DirectionalLight(0xffffff, 0.8);
-fillLight.position.set(-3, 1, -2);
-
-const ambient = new THREE.AmbientLight(0xffffff, 0.35);
-
-scene.add(keyLight, fillLight, ambient);
-
-// =====================
-// HDR 环境（高级感关键）
-// =====================
-const pmrem = new THREE.PMREMGenerator(renderer);
-
-new THREE.TextureLoader().load(
-  "https://threejs.org/examples/textures/equirectangular/royal_esplanade_1k.jpg",
-  (texture) => {
-
-    const envMap = pmrem.fromEquirectangular(texture).texture;
-    scene.environment = envMap;
-
-    texture.dispose();
-    pmrem.dispose();
-  }
-);
-
-// =====================
-// GLB Loader
-// =====================
 const loader = new THREE.GLTFLoader();
-
 loader.load("./model.glb", (gltf) => {
 
-  const model = gltf.scene;
+  model = gltf.scene;
 
-  // 居中
   const box = new THREE.Box3().setFromObject(model);
   const center = box.getCenter(new THREE.Vector3());
   model.position.sub(center);
 
-  // 缩放统一
   const size = box.getSize(new THREE.Vector3());
   const max = Math.max(size.x, size.y, size.z);
   model.scale.setScalar(2.2 / max);
 
   scene.add(model);
-
-  document.getElementById("loading").style.display = "none";
-
-}, undefined, (err) => {
-  console.error("模型加载失败", err);
-  document.getElementById("loading").innerText = "Model Load Failed";
 });
 
 // =====================
-// Render Loop
+// Poster (glass.png)
 // =====================
-function animate() {
-  requestAnimationFrame(animate);
+const textureLoader = new THREE.TextureLoader();
+const posterGeo = new THREE.PlaneGeometry(1.5, 2);
 
-  controls.update();
+const posterMat = new THREE.MeshBasicMaterial({
+  map: textureLoader.load("./glass.png"),
+  transparent: true
+});
 
-  renderer.render(scene, camera);
-}
+const poster = new THREE.Mesh(posterGeo, posterMat);
+poster.position.set(2.5, 0, -1);
+scene.add(poster);
 
-animate();
+// =====================
+// Scroll Control (核心)
+// =====================
+let scrollY = 0;
+
+window.addEventListener("scroll", () => {
+  scrollY = window.scrollY;
+});
 
 // =====================
 // Resize
@@ -210,6 +230,32 @@ window.addEventListener("resize", () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+// =====================
+// Animate
+// =====================
+function animate() {
+  requestAnimationFrame(animate);
+
+  const t = scrollY / window.innerHeight;
+
+  // 🎯 Apple式镜头推进
+  camera.position.z = 3.2 - t * 1.2;
+  camera.position.y = t * 0.2;
+
+  // 🎯 模型轻微呼吸
+  if (model) {
+    model.rotation.y += 0.003;
+  }
+
+  // 🎯 海报漂浮
+  poster.position.y = Math.sin(t * 2) * 0.2;
+
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+animate();
 </script>
 
 </body>
