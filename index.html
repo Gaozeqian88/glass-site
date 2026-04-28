@@ -5,83 +5,45 @@
 <title>GAO ZE QIAN / GLASS EXHIBITION</title>
 
 <style>
-/* ===================== 基础修复（移动端关键） ===================== */
 html, body {
   margin: 0;
-  padding: 0;
-  height: auto;
-  overflow-x: hidden;
-  overflow-y: auto;
+  height: 100%;
+  overflow: hidden; /* ⭐ 关键：禁止滑动 */
   background: #0a0a0a;
   font-family: Helvetica, Arial, sans-serif;
   color: white;
-
-  -webkit-overflow-scrolling: touch;
 }
 
-/* 防止touch吞掉滚动 */
-body {
-  touch-action: pan-y;
-}
-
-/* ===================== canvas ===================== */
+/* canvas */
 canvas {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  touch-action: none;
 }
 
-/* ===================== 展览区 ===================== */
-section {
-  height: 100vh;
-  min-height: 100vh;
+/* ===== 展厅文本 ===== */
+.section {
+  position: absolute;
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
-  padding: 0 8vw;
-  position: relative;
-  z-index: 10;
+  padding: 0 10vw;
+  opacity: 0;
+  transition: 0.8s ease;
   pointer-events: none;
 }
 
-/* 文字可交互 */
+.section.active {
+  opacity: 1;
+}
+
 .text {
   max-width: 420px;
-  font-weight: 200;
   line-height: 1.7;
-  letter-spacing: 0.5px;
-  pointer-events: auto;
+  font-weight: 200;
 }
 
-/* 轻微空间层次 */
-section:nth-child(odd) {
-  background: rgba(255,255,255,0.02);
-}
-
-/* 顶部信息 */
-.header {
-  position: fixed;
-  top: 40px;
-  left: 40px;
-  font-size: 12px;
-  letter-spacing: 2px;
-  opacity: 0.7;
-  z-index: 20;
-}
-
-/* 章节 */
-.chapter {
-  position: fixed;
-  right: 40px;
-  top: 40px;
-  font-size: 11px;
-  opacity: 0.4;
-  z-index: 20;
-}
-
-/* 标题 */
 h1 {
   font-size: 28px;
   font-weight: 300;
@@ -94,9 +56,51 @@ h2 {
   margin-bottom: 18px;
 }
 
+/* 右侧 */
 .right {
   margin-left: auto;
   text-align: right;
+}
+
+/* 顶部 */
+.header {
+  position: fixed;
+  top: 40px;
+  left: 40px;
+  font-size: 12px;
+  letter-spacing: 2px;
+  opacity: 0.7;
+  z-index: 10;
+}
+
+/* ===== 底部双虚线箭头 ===== */
+.nav {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 20;
+  cursor: pointer;
+}
+
+.arrow {
+  font-size: 18px;
+  opacity: 0.6;
+  letter-spacing: 2px;
+  user-select: none;
+}
+
+.arrow:hover {
+  opacity: 1;
+}
+
+.small {
+  font-size: 10px;
+  opacity: 0.4;
+  margin-top: 4px;
 }
 </style>
 </head>
@@ -104,102 +108,97 @@ h2 {
 <body>
 
 <div class="header">GAO ZE QIAN / GLASS STUDY</div>
-<div class="chapter" id="chapter">WORK 01</div>
 
-<canvas id="webgl"></canvas>
-
-<!-- ================= SECTION ================= -->
-
-<section>
+<!-- ===== 展厅文本 ===== -->
+<div class="section active">
   <div class="text">
     <h1>Glass Object Study</h1>
     <h2>Material × Light</h2>
-    玻璃作为一种“半透明结构”，在数字空间中被重新构建。
+    玻璃材料在数字空间中的结构重构实验。
   </div>
-</section>
+</div>
 
-<section>
+<div class="section">
   <div class="text right">
     <h1>Light Field</h1>
     <h2>Spatial Construction</h2>
-    光不只是照明，而是塑造空间的方式。
+    光作为空间结构的一部分存在。
   </div>
-</section>
+</div>
 
-<section>
+<div class="section">
   <div class="text">
     <h1>Glass Poster</h1>
     <h2>2D × 3D Hybrid</h2>
-    平面与三维叠加，使视觉成为连续空间体验。
+    平面与三维的叠加视觉实验。
   </div>
-</section>
+</div>
 
-<section>
+<div class="section">
   <div class="text right">
     <h1>GAO ZE QIAN</h1>
     <h2>Artist / Designer</h2>
-    南京艺术学院 · 玻璃艺术（大二）  
-    专注材料 / 空间 / 数字艺术实验
+    南京艺术学院 · 玻璃艺术  
+    三维 / 视觉设计创作者
   </div>
-</section>
+</div>
 
-<!-- ================= THREE ================= -->
+<!-- ===== 底部双箭头 ===== -->
+<div class="nav" id="nextBtn">
+  <div class="arrow">⇣ ⇣</div>
+  <div class="small">NEXT</div>
+</div>
+
+<canvas id="webgl"></canvas>
+
+<!-- libs -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
 <script>
 
-// ================= Scene =================
+// ================= STATE =================
+let index = 0;
+const sections = document.querySelectorAll(".section");
+
+// ================= SCENE =================
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0a0a0a);
 
-// ================= Camera（修复遮头） =================
-const camera = new THREE.PerspectiveCamera(
-  45,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  100
-);
+// ================= CAMERA =================
+const camera = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, 0.1, 100);
+camera.position.set(0, 0.3, 3.6);
 
-// ⭐ 关键：往下看展台 + 拉远一点避免遮头
-camera.position.set(0, 0.4, 3.9);
-
-// ================= Renderer =================
+// ================= RENDERER =================
 const renderer = new THREE.WebGLRenderer({
   canvas: document.querySelector("#webgl"),
   antialias: true
 });
 
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.2;
-renderer.outputEncoding = THREE.sRGBEncoding;
 
-// ================= Light =================
-const key = new THREE.DirectionalLight(0xffffff, 2.5);
+// ================= LIGHT =================
+scene.add(new THREE.AmbientLight(0xffffff, 0.3));
+
+const key = new THREE.DirectionalLight(0xffffff, 2);
 key.position.set(3, 5, 2);
+scene.add(key);
 
-const fill = new THREE.DirectionalLight(0xffffff, 0.7);
-fill.position.set(-3, 2, -2);
-
-const ambient = new THREE.AmbientLight(0xffffff, 0.25);
-
-scene.add(key, fill, ambient);
-
-// ================= Controls =================
+// ================= CONTROLS =================
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.enablePan = false;
 controls.autoRotate = true;
 controls.autoRotateSpeed = 0.25;
 
-// ================= Model =================
+// ================= MODEL =================
 let model;
 
-const loader = new THREE.GLTFLoader();
-loader.load("./model.glb", (gltf) => {
+new THREE.GLTFLoader().load("./model.glb", (gltf) => {
 
   model = gltf.scene;
 
@@ -212,62 +211,41 @@ loader.load("./model.glb", (gltf) => {
 
   model.scale.setScalar(2.3 / max);
 
-  // ⭐ 展台下沉（防止漂浮）
-  model.position.y = -0.55;
+  model.position.y = -0.5;
 
   scene.add(model);
 });
 
-// ================= Poster =================
-const tex = new THREE.TextureLoader().load("./glass.png");
+// ================= PAGE SWITCH =================
+function setPage(i) {
 
-const poster = new THREE.Mesh(
-  new THREE.PlaneGeometry(1.6, 2.2),
-  new THREE.MeshBasicMaterial({ map: tex, transparent: true })
-);
+  index = i;
 
-poster.position.set(2.4, 0.2, -1);
-scene.add(poster);
+  sections.forEach((s, idx) => {
+    s.classList.toggle("active", idx === i);
+  });
 
-// ================= Scroll =================
-let scrollY = 0;
-let targetScroll = 0;
+  // 🎯 镜头变化（展览切换感）
+  camera.position.y = 0.3 + i * 0.2;
+  camera.position.z = 3.6 - i * 0.15;
+}
 
-window.addEventListener("scroll", () => {
-  targetScroll = window.scrollY;
+// ================= BUTTON =================
+document.getElementById("nextBtn").onclick = () => {
+  index = (index + 1) % sections.length;
+  setPage(index);
+};
 
-  const index = Math.floor(window.scrollY / window.innerHeight) + 1;
-  document.getElementById("chapter").innerText = "WORK 0" + index;
-});
-
-// ================= Resize =================
-window.addEventListener("resize", () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
+// ================= RESIZE =================
+addEventListener("resize", () => {
+  camera.aspect = innerWidth/innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setSize(innerWidth, innerHeight);
 });
 
-// ================= Animate =================
-function animate() {
+// ================= RENDER =================
+function animate(){
   requestAnimationFrame(animate);
-
-  // ⭐ 平滑滚动（关键）
-  scrollY += (targetScroll - scrollY) * 0.08;
-
-  const t = scrollY / (window.innerHeight * 3);
-
-  // 🎯 Apple式镜头推进
-  camera.position.z = 3.9 - t * 0.9;
-  camera.position.y = 0.4 - t * 0.3;
-
-  // 🎯 模型呼吸
-  if (model) {
-    model.rotation.y += 0.0025;
-    model.position.y = -0.55 + Math.sin(t * 2) * 0.02;
-  }
-
-  // 🎯 海报漂浮
-  poster.position.y = 0.2 + Math.sin(t * 2) * 0.12;
 
   controls.update();
   renderer.render(scene, camera);
