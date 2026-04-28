@@ -2,13 +2,13 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<title>GAO ZE QIAN / GLASS EXHIBITION</title>
+<title>GAO ZE QIAN / GLASS RITUAL</title>
 
 <style>
 html, body {
   margin: 0;
   height: 100%;
-  overflow: hidden; /* ⭐ 关键：禁止系统滚动 */
+  overflow: hidden;
   background: #0a0a0a;
   font-family: Helvetica, Arial, sans-serif;
   color: white;
@@ -21,7 +21,7 @@ canvas {
   left: 0;
 }
 
-/* page */
+/* ===== PAGE SYSTEM ===== */
 .page {
   position: absolute;
   width: 100%;
@@ -38,30 +38,38 @@ canvas {
 /* layout */
 .left, .right {
   width: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .center {
   width: 100%;
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 
-/* text */
+/* typography */
 h1 {
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 300;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
 }
 
 p {
   font-size: 13px;
   line-height: 1.8;
   opacity: 0.75;
-  max-width: 420px;
+  max-width: 520px;
 }
 
-/* poster */
+/* image */
 .poster {
-  width: 360px;
+  width: 420px;
+  opacity: 0.95;
+  mix-blend-mode: screen;
 }
 
 /* header */
@@ -72,62 +80,83 @@ p {
   font-size: 12px;
   letter-spacing: 2px;
   opacity: 0.6;
+  z-index: 10;
+}
+
+/* minimal lines (高级感关键) */
+.line {
+  position: absolute;
+  width: 1px;
+  height: 60%;
+  background: rgba(255,255,255,0.05);
+  left: 6vw;
+  top: 20%;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">GAO ZE QIAN / GLASS PROCESS</div>
+<div class="header">GAO ZE QIAN / GLASS RITUAL SYSTEM</div>
 
 <canvas id="webgl"></canvas>
 
-<!-- PAGE 1 -->
+<!-- ================= PAGE 1 ================= -->
 <section class="page active" id="p1">
   <div class="center">
     <div id="modelArea"></div>
   </div>
 </section>
 
-<!-- PAGE 2 -->
+<!-- ================= PAGE 2 ================= -->
 <section class="page" id="p2">
+  <div class="line"></div>
+
   <div class="left">
-    <h1>Material Translation</h1>
+    <h1>Material Translation System</h1>
     <p>
-      AI生成 → C4D重建 → 3D打印 → 石膏翻模 →
-      硅胶开模 → 蜡模修型 → 高温玻璃铸造。
+      Midjourney视觉生成 → 混元AI建模 → Cinema4D结构重建 →
+      3D打印原型 → 石膏翻模 → 硅胶开模 → 蜡模修型 →
+      耐火石膏 → 高温玻璃熔制。
+      <br><br>
+      作品不是“形态”，而是材料从数字到物理的连续转译过程。
     </p >
   </div>
+
   <div class="right">
-    < img src="./glass.png" class="poster">
+    <div id="miniModel"></div>
   </div>
 </section>
 
-<!-- PAGE 3 -->
+<!-- ================= PAGE 3 ================= -->
 <section class="page" id="p3">
   <div class="left">
     < img src="./glass.png" class="poster">
   </div>
+
   <div class="right">
-    <h1>Process System</h1>
+    <h1>Glass Field Study</h1>
     <p>
-      这是一个数字到物理的连续生成链路，
-      每一步都是材料状态的转换。
+      玻璃在这里不再是材料，而是一种“光的容器结构”。
+      海报与三维模型共同构成材料证据系统。
     </p >
   </div>
 </section>
 
-<!-- PAGE 4 -->
+<!-- ================= PAGE 4 ================= -->
 <section class="page" id="p4">
   <div style="width:100%;text-align:center;">
-    <h1 style="font-size:32px;">GAO ZE QIAN</h1>
+    <h1 style="font-size:34px;letter-spacing:3px;">GAO ZE QIAN</h1>
 
-    <p style="max-width:650px;margin:auto;margin-top:20px;">
-      南京艺术学院 · 玻璃艺术专业（大二）<br><br>
+    <p style="max-width:700px;margin:auto;margin-top:20px;">
+      艺术家 / 设计师 / 玻璃材料研究者<br><br>
 
-      我专注于数字建模与玻璃工艺的融合研究，
-      通过AI生成、三维建模与传统工艺的结合，
-      探索材料如何在数字与物理之间转译。<br><br>
+      我目前就读于南京艺术学院玻璃艺术专业（大二），
+      我的创作围绕“数字生成 → 材料转译 → 物理凝固”的路径展开。
+      我关注的不只是造型，而是“材料如何记录时间”。<br><br>
+
+      在实践中，我将AI生成、三维建模与传统玻璃工艺结合，
+      构建一种跨媒介的视觉生产体系。<br><br>
 
       Email: 3586822968@qq.com<br>
       WeChat: gaozeqian2006<br>
@@ -160,7 +189,7 @@ renderer.setSize(innerWidth,innerHeight);
 document.body.appendChild(renderer.domElement);
 
 // ================= LIGHT =================
-scene.add(new THREE.AmbientLight(0xffffff,0.4));
+scene.add(new THREE.AmbientLight(0xffffff,0.35));
 const dir = new THREE.DirectionalLight(0xffffff,2);
 dir.position.set(3,5,2);
 scene.add(dir);
@@ -173,9 +202,7 @@ new THREE.GLTFLoader().load("./model.glb",(gltf)=>{
   scene.add(model);
 });
 
-// ================= PAGE SWITCH SYSTEM（核心修复） =================
-
-// ⭐ 防止误触滚动太快
+// ================= PAGE CONTROL =================
 let lock = false;
 
 window.addEventListener("wheel",(e)=>{
@@ -183,21 +210,17 @@ window.addEventListener("wheel",(e)=>{
   if(lock) return;
   lock = true;
 
-  if(e.deltaY > 0){
-    page++;
-  } else {
-    page--;
-  }
+  if(e.deltaY > 0) page++;
+  else page--;
 
   page = Math.max(1, Math.min(4, page));
 
   switchPage(page);
 
-  setTimeout(()=> lock=false, 800);
-
+  setTimeout(()=>lock=false, 800);
 });
 
-// ================= SWITCH =================
+// ================= SWITCH SYSTEM =================
 function switchPage(i){
 
   document.querySelectorAll(".page")
@@ -205,12 +228,13 @@ function switchPage(i){
 
   document.getElementById("p"+i).classList.add("active");
 
-  // ================= MODEL STATE =================
   if(!model) return;
+
+  // ===== PAGE STATES =====
 
   if(i === 1){
     model.position.set(0,0,0);
-    model.scale.set(1.8,1.8,1.8); // ⭐ 放大第一屏
+    model.scale.set(1.8,1.8,1.8); // 展品最大化
   }
 
   if(i === 2){
