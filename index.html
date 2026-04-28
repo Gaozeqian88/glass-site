@@ -2,45 +2,90 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<title>GLASS ART</title>
+<title>高泽乾 · 玻璃艺术</title>
 
 <style>
 body{
   margin:0;
-  background:#000;
+  background:#0a0a0a;
   color:#fff;
-  text-align:center;
   font-family:Arial;
 }
 
-h1{
-  margin-top:40px;
-  letter-spacing:4px;
+/* 顶部 */
+.nav{
+  position:fixed;
+  top:30px;
+  left:40px;
+  letter-spacing:3px;
+  font-size:14px;
+  z-index:10;
+}
+
+/* 首屏 */
+.hero{
+  height:100vh;
+  position:relative;
 }
 
 #viewer{
   width:100%;
-  height:60vh;
-  background:#111;
+  height:100%;
 }
 
-img{
-  width:60%;
+/* 标题 */
+.title{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-size:80px;
+  letter-spacing:8px;
+  pointer-events:none;
+}
+
+/* 内容 */
+.section{
+  padding:120px 40px;
+  background:#111;
+  text-align:center;
+}
+
+.work img{
+  width:100%;
+  max-width:800px;
   margin-top:40px;
+}
+
+.desc{
+  color:#aaa;
+  margin-top:20px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>GLASS ART</h1>
+<div class="nav">GAO ZEQIAN</div>
 
-<div id="viewer"></div>
+<div class="hero">
+  <div id="viewer"></div>
+  <div class="title">GLASS ART</div>
+</div>
 
-<img src="https://raw.githubusercontent.com/Gaozeqian88/glass-site/main/glass.png">
+<div class="section">
+  <h2>玻璃雕塑 01</h2>
+  <p class="desc">光与形态的实验 · 2026</p >
 
-<!-- THREE -->
+  <!-- ✅ 用你的图片 -->
+  <div class="work">
+    <img src="glass.png">
+  </div>
+</div>
+
+<!-- Three.js -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/controls/OrbitControls.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/loaders/GLTFLoader.js"></script>
 
 <script>
@@ -49,79 +94,80 @@ img{
 const scene = new THREE.Scene();
 
 // 相机
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
-camera.position.set(0,0,3);
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.1, 1000);
+camera.position.set(0,0,6);
 
 // 渲染器
-const renderer = new THREE.WebGLRenderer({antialias:true});
-renderer.setSize(window.innerWidth, window.innerHeight*0.6);
-document.getElementById('viewer').appendChild(renderer.domElement);
+const renderer = new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setSize(window.innerWidth,window.innerHeight);
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.physicallyCorrectLights = true;
+document.getElementById("viewer").appendChild(renderer.domElement);
 
 // 灯光
-const light1 = new THREE.DirectionalLight(0xffffff,2);
-light1.position.set(2,2,2);
+const light1 = new THREE.DirectionalLight(0xffffff,1.5);
+light1.position.set(5,5,5);
 scene.add(light1);
 
 const light2 = new THREE.DirectionalLight(0xffffff,1);
-light2.position.set(-2,-2,-2);
+light2.position.set(-5,3,-5);
 scene.add(light2);
 
-// ⭐ 加载模型（带报错提示）
+// 控制器
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.enablePan = false;
+
+// 加载模型（你的文件名）
 const loader = new THREE.GLTFLoader();
 
-loader.load(
-  'model.glb',
+loader.load("model.glb", function(gltf){
 
-  function(gltf){
-    console.log("✅ 模型加载成功");
+  const model = gltf.scene;
 
-    const model = gltf.scene;
+  // 居中
+  const box = new THREE.Box3().setFromObject(model);
+  const center = box.getCenter(new THREE.Vector3());
+  model.position.sub(center);
 
-    // 自动居中
-    const box = new THREE.Box3().setFromObject(model);
-    const center = box.getCenter(new THREE.Vector3());
-    model.position.sub(center);
+  // 缩放
+  const size = box.getSize(new THREE.Vector3());
+  const scale = 3 / size.length();
+  model.scale.setScalar(scale);
 
-    // 自动缩放
-    const size = box.getSize(new THREE.Vector3());
-    const scale = 2 / Math.max(size.x, size.y, size.z);
-    model.scale.setScalar(scale);
-
-    // 玻璃材质
-    model.traverse(child=>{
-      if(child.isMesh){
-        child.material = new THREE.MeshPhysicalMaterial({
-          color:0xffffff,
-          roughness:0,
-          transmission:1,
-          thickness:1.5
-        });
-      }
-    });
-
-    scene.add(model);
-
-    function animate(){
-      requestAnimationFrame(animate);
-      model.rotation.y += 0.003;
-      renderer.render(scene, camera);
+  // 玻璃材质
+  model.traverse((child)=>{
+    if(child.isMesh){
+      child.material = new THREE.MeshPhysicalMaterial({
+        color:0xffffff,
+        roughness:0.05,
+        transmission:1,
+        thickness:2,
+        ior:1.45,
+        clearcoat:1,
+        envMapIntensity:1.5
+      });
     }
-    animate();
-  },
+  });
 
-  undefined,
+  scene.add(model);
 
-  function(error){
-    console.error("❌ 模型加载失败:", error);
-    alert("模型没加载出来，按F12看错误");
+  function animate(){
+    requestAnimationFrame(animate);
+    model.rotation.y += 0.002;
+    controls.update();
+    renderer.render(scene,camera);
   }
-);
+
+  animate();
+
+});
 
 // 自适应
-window.addEventListener('resize', ()=>{
+window.addEventListener("resize",()=>{
   camera.aspect = window.innerWidth/window.innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight*0.6);
+  renderer.setSize(window.innerWidth,window.innerHeight);
 });
 
 </script>
