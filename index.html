@@ -2,12 +2,12 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<title>GAO ZE QIAN / GLASS SYSTEM</title>
+<title>GAO ZE QIAN / GLASS EXHIBITION</title>
 
 <style>
 html, body {
   margin: 0;
-  padding: 0;
+  height: 100%;
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
   background: #0a0a0a;
@@ -15,7 +15,7 @@ html, body {
   color: white;
 }
 
-/* 每一页强制吸附（关键） */
+/* ===== PAGE ===== */
 .page {
   height: 100vh;
   scroll-snap-align: start;
@@ -26,14 +26,14 @@ html, body {
   box-sizing: border-box;
 }
 
-/* canvas */
+/* ===== canvas ===== */
 canvas {
   position: fixed;
   top: 0;
   left: 0;
 }
 
-/* layout */
+/* ===== layout ===== */
 .left, .right {
   width: 50%;
 }
@@ -44,34 +44,71 @@ canvas {
   justify-content: center;
 }
 
-/* text */
+/* ===== typography ===== */
 h1 {
   font-size: 26px;
   font-weight: 300;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
 }
 
 p {
   font-size: 13px;
   line-height: 1.8;
   opacity: 0.75;
-  max-width: 420px;
+  max-width: 460px;
 }
 
-/* poster */
+/* ===== poster ===== */
 .poster {
-  width: 320px;
+  width: 380px;
   opacity: 0.95;
 }
 
-/* header */
+/* ===== header ===== */
 .header {
   position: fixed;
   top: 40px;
   left: 40px;
   font-size: 12px;
   letter-spacing: 2px;
-  opacity: 0.7;
+  opacity: 0.6;
   z-index: 10;
+}
+
+/* =========================
+   🎨 DESIGN LAYERS（新增）
+========================= */
+
+/* 线条结构 */
+.line {
+  position: absolute;
+  width: 1px;
+  height: 60%;
+  background: rgba(255,255,255,0.06);
+  left: 6vw;
+  top: 20%;
+}
+
+/* 横向分割线 */
+.hline {
+  position: absolute;
+  width: 30%;
+  height: 1px;
+  background: rgba(255,255,255,0.06);
+  bottom: 25%;
+  left: 8vw;
+}
+
+/* 右侧装饰块 */
+.block {
+  position: absolute;
+  width: 180px;
+  height: 280px;
+  border: 1px solid rgba(255,255,255,0.06);
+  right: 10vw;
+  top: 20%;
+  opacity: 0.6;
 }
 </style>
 </head>
@@ -82,8 +119,13 @@ p {
 
 <canvas id="webgl"></canvas>
 
-<!-- ================= PAGE 1（交互核心） ================= -->
+<!-- ================= PAGE 1 ================= -->
 <section class="page" id="p1">
+
+  <div class="line"></div>
+  <div class="hline"></div>
+  <div class="block"></div>
+
   <div class="center">
     <div id="modelArea"></div>
   </div>
@@ -91,25 +133,30 @@ p {
 
 <!-- ================= PAGE 2 ================= -->
 <section class="page" id="p2">
+
+  <div class="line"></div>
+
   <div class="left">
     <h1>Glass Object Study</h1>
     <p>
-      该作品基于AI生成视觉（Midjourney + 混元模型），
-      在Cinema4D中进行结构重建，
-      并通过3D打印进入真实材料转译流程。
-      石膏翻模 / 硅胶开模 / 蜡模修正 /
-      耐火石膏铸型 / 高温玻璃熔制，
-      最终形成玻璃实体作品。
+      该作品由AI视觉生成（Midjourney + 混元模型）开始，
+      在Cinema4D中重构三维结构，并通过3D打印进入现实材料系统。
+      石膏翻模 / 硅胶模具 / 蜡模修型 / 高温石膏铸造，
+      最终在玻璃窑中完成物理转译。
     </p >
   </div>
 
   <div class="right">
     < img src="./glass.png" class="poster">
   </div>
+
 </section>
 
 <!-- ================= PAGE 3 ================= -->
 <section class="page" id="p3">
+
+  <div class="block"></div>
+
   <div class="left">
     < img src="./glass.png" class="poster">
   </div>
@@ -117,26 +164,32 @@ p {
   <div class="right">
     <h1>Material Pipeline</h1>
     <p>
-      AI生成 → C4D建模 → 3D打印原型 →
-      石膏/硅胶翻模 → 蜡模修型 →
-      耐火石膏 → 窑炉玻璃铸造。
-      这是一个“数字 → 物理”的连续生成系统。
+      AI生成 → C4D建模 → 3D打印 → 翻模系统 →
+      蜡模精修 → 耐火石膏 → 窑炉玻璃铸造。
+      这是一个从“数字生成”到“物理凝固”的完整链路。
     </p >
   </div>
+
 </section>
 
 <!-- ================= PAGE 4 ================= -->
 <section class="page" id="p4">
+
+  <div class="hline"></div>
+
   <div style="width:100%;text-align:center;">
-    <h1 style="font-size:32px;letter-spacing:3px;">GAO ZE QIAN</h1>
+    <h1 style="font-size:34px;letter-spacing:3px;">GAO ZE QIAN</h1>
 
-    <p style="max-width:650px;margin:auto;margin-top:20px;">
-      艺术家 / 设计师 / 玻璃材料研究者<br><br>
+    <p style="max-width:700px;margin:auto;margin-top:20px;">
+      艺术家 / 设计师 / 材料实验研究者<br><br>
 
-      我在南京艺术学院玻璃艺术专业学习，
-      研究数字建模与传统玻璃工艺之间的转换关系。
-      我的作品关注“材料如何记录时间”，
-      以及“数字形态如何进入物理世界”。<br><br>
+      我目前就读于南京艺术学院玻璃艺术专业（大二）。
+      我的创作围绕“数字生成 → 物理转译 → 材料再造”的路径展开，
+      通过AI生成、三维建模与传统玻璃工艺之间的连接，
+      构建一种新的视觉生产体系。<br><br>
+
+      我关注的不是“形态”，而是材料如何记录时间，
+      以及数字结构如何进入现实世界成为物理存在。<br><br>
 
       Email: 3586822968@qq.com<br>
       WeChat: gaozeqian2006<br>
@@ -144,12 +197,12 @@ p {
       Tel: 18751982910
     </p >
   </div>
+
 </section>
 
 <!-- THREE -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
 <script>
 
@@ -162,14 +215,12 @@ const camera = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, 0.1, 100)
 camera.position.set(0,0.2,3.6);
 
 // ================= RENDERER =================
-const renderer = new THREE.WebGLRenderer({
-  canvas: document.querySelector("#webgl"),
-  antialias: true
-});
-renderer.setSize(innerWidth, innerHeight);
+const renderer = new THREE.WebGLRenderer({ antialias:true });
+renderer.setSize(innerWidth,innerHeight);
+document.body.appendChild(renderer.domElement);
 
 // ================= LIGHT =================
-scene.add(new THREE.AmbientLight(0xffffff,0.4));
+scene.add(new THREE.AmbientLight(0xffffff,0.35));
 const dir = new THREE.DirectionalLight(0xffffff,2);
 dir.position.set(3,5,2);
 scene.add(dir);
@@ -182,51 +233,40 @@ new THREE.GLTFLoader().load("./model.glb",(gltf)=>{
   scene.add(model);
 });
 
-// ================= CONTROL（只允许第一页交互） =================
-const controls = new THREE.OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.enablePan = false;
-
+// ================= PAGE STATE =================
 function getPage(){
   return Math.round(window.scrollY / window.innerHeight) + 1;
 }
 
-// ⭐ 核心：只有第一页可交互
-function updateControl(){
-  controls.enabled = (getPage() === 1);
-}
-
-// ================= PAGE ANIMATION =================
+// ================= MODEL MOTION SYSTEM =================
+// ⭐ 核心：不是乱飘，而是“随页面状态移动”
 function updateModel(page){
-
   if(!model) return;
 
   if(page === 1){
     model.position.set(0,0,0);
-    model.scale.set(1,1,1);
+    model.scale.set(1.6,1.6,1.6); // ⭐ 放大（解决空）
   }
 
   if(page === 2){
     model.position.set(2,0,-1);
-    model.scale.set(0.6,0.6,0.6);
+    model.scale.set(0.9,0.9,0.9);
   }
 
   if(page === 3){
     model.position.set(-2,0,-1);
-    model.scale.set(0.5,0.5,0.5);
+    model.scale.set(0.8,0.8,0.8);
   }
 
   if(page === 4){
     model.position.set(0,-1,0);
-    model.scale.set(0.4,0.4,0.4);
+    model.scale.set(0.6,0.6,0.6);
   }
 }
 
 // ================= SCROLL =================
 window.addEventListener("scroll",()=>{
-  const page = getPage();
-  updateModel(page);
-  updateControl();
+  updateModel(getPage());
 });
 
 // ================= RESIZE =================
@@ -244,7 +284,6 @@ function animate(){
     model.rotation.y += 0.003;
   }
 
-  controls.update();
   renderer.render(scene,camera);
 }
 
