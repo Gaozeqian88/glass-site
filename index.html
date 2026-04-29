@@ -1,665 +1,543 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>玻璃艺术作品集</title>
-  <style>
-    :root{
-      --bg:#000;
-      --white:#fff;
-      --muted:rgba(255,255,255,0.58);
-      --line:rgba(255,255,255,0.12);
-      --ease:cubic-bezier(0.22,1,0.36,1);
-    }
+<!DOCTYPE html> <html lang="zh-CN"> <head> <meta charset="utf-8" /> <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" /> <title>玻璃艺术｜高泽乾</title> <style> /* ---------- 基础变量 ---------- */ :root{ --bg: #000; --text: #fff; --muted: rgba(255,255,255,0.62); --thin: rgba(255,255,255,0.06); --ease: cubic-bezier(0.22,1,0.36,1); --max-width: 1400px; --padding: clamp(20px, 4vw, 64px); }
 
-    *{
-      box-sizing:border-box;
-    }
+/* ---------- 全局样式 ---------- */
+*{ box-sizing: border-box; }
+html,body{ height:100%; margin:0; background:var(--bg); color:var(--text); font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei",sans-serif; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+a{ color:inherit; text-decoration:none; }
+img{ display:block; max-width:100%; height:auto; }
 
-    html,body{
-      width:100%;
-      height:100%;
-      margin:0;
-      overflow:hidden;
-      background:var(--bg);
-      color:var(--white);
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-    }
+/* ---------- Three.js 画布 ---------- */
+canvas#three-canvas{ position:fixed; inset:0; width:100%; height:100%; z-index:0; display:block; }
 
-    /* Three.js 全屏画布 */
-    #three-canvas{
-      position:fixed;
-      inset:0;
-      width:100%;
-      height:100%;
-      display:block;
-      z-index:0;
-    }
+/* ---------- 页面容器 & 翻页 ---------- */
+.pages{ position:relative; z-index:2; width:100%; height:100%; overflow:hidden; }
+.pages-wrapper{
+  width:100%;
+  height:400vh; /* 4 页 */
+  transform:translateY(0);
+  transition: transform 0.95s var(--ease);
+  will-change: transform;
+}
+.page{
+  width:100vw;
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:var(--padding);
+}
 
-    /* 页面容器 */
-    .pages{
-      position:relative;
-      z-index:2;
-      width:100%;
-      height:100%;
-      overflow:hidden;
-    }
+/* 内容布局 */
+.inner{
+  width:100%;
+  max-width:var(--max-width);
+  display:flex;
+  gap:48px;
+  align-items:center;
+  justify-content:space-between;
+}
+.col{ flex:1; min-width:0; }
+.eyebrow{ font-size:12px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:14px; }
+h1{ margin:0 0 12px 0; font-size:clamp(28px,4.6vw,56px); font-weight:600; line-height:1.02; }
+p{ margin:0; color:var(--muted); font-size:16px; line-height:1.8; }
 
-    .pages-wrapper{
-      width:100%;
-      height:400vh;
-      transform:translateY(0);
-      transition:transform 0.95s var(--ease);
-      will-change:transform;
-    }
+/* 图片框 */
+.image-frame{ width:100%; max-width:560px; border-radius:10px; overflow:hidden; border:1px solid var(--thin); background:rgba(255,255,255,0.02); box-shadow:0 24px 60px rgba(0,0,0,0.6); aspect-ratio:4/3; }
 
-    .page{
-      width:100vw;
-      height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding: clamp(24px, 6vw, 80px);
-      position:relative;
-    }
+/* 第1页：居中简洁 */
+#page-1 .inner{ justify-content:center; text-align:center; }
+#page-1 .col{ max-width:900px; }
 
-    .content{
-      width:100%;
-      max-width:1400px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:48px;
-    }
+/* 第4页：个人信息 */
+#page-4 .inner{ justify-content:flex-start; align-items:flex-start; }
+#page-4 .col{ max-width:720px; }
 
-    .col{
-      flex:1;
-      min-width:0;
-    }
+.divider{ height:1px; background:var(--thin); margin:20px 0; }
 
-    .eyebrow{
-      font-size:12px;
-      letter-spacing:2.4px;
-      text-transform:uppercase;
-      color:var(--muted);
-      margin-bottom:18px;
-    }
+/* 页脚提示 / 页码 */
+.hint{ position:fixed; left:20px; bottom:20px; z-index:3; color:var(--muted); font-size:12px; user-select:none; pointer-events:none; }
+.counter{ position:fixed; right:20px; bottom:20px; z-index:3; color:var(--muted); font-size:12px; user-select:none; pointer-events:none; }
 
-    h1{
-      margin:0 0 16px 0;
-      font-weight:600;
-      font-size:clamp(34px,4.8vw,64px);
-      line-height:1.02;
-      letter-spacing:-0.02em;
-    }
+/* 响应式 */
+@media (max-width:900px){
+  .inner{ flex-direction:column; gap:28px; text-align:center; align-items:center; justify-content:center; }
+  .image-frame{ max-width:92vw; }
+  .hint{ left:14px; bottom:14px; }
+  .counter{ right:14px; bottom:14px; }
+}
+</style> </head> <body> <!-- Three 画布 --> <canvas id="three-canvas"></canvas>
 
-    p{
-      margin:0;
-      color:var(--muted);
-      font-size:16px;
-      line-height:1.8;
-      max-width: 620px;
-    }
+<!-- 页面结构（4 页） --> <div class="pages" aria-hidden="false"> <div id="pages-wrapper" class="pages-wrapper"> <!-- Page 1 --> <section id="page-1" class="page" data-index="0"> <div class="inner"> <div class="col"> <div class="eyebrow">Glass Art Collection</div> <h1>镜境 — Glass Sculpture</h1> <p>由 AI 灵感生成，经数字建模、3D 打印与手工玻璃熔制完成的当代玻璃艺术作品。向下滑动以查看细节与创作流程。</p> </div> </div> </section>
 
-    .meta{
-      color:var(--muted);
-      font-size:15px;
-      line-height:2;
-      margin-top:18px;
-    }
-
-    .image-frame{
-      width:100%;
-      max-width:560px;
-      border-radius:10px;
-      overflow:hidden;
-      box-shadow:0 20px 50px rgba(0,0,0,0.55);
-      border:1px solid rgba(255,255,255,0.06);
-      aspect-ratio: 4 / 3;
-      background:rgba(255,255,255,0.02);
-    }
-
-    .image-frame img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
-    }
-
-    /* 特定页面布局 */
-    #page-1 .content{
-      justify-content:center;
-      text-align:center;
-    }
-    #page-1 .col{
-      max-width:900px;
-    }
-
-    #page-4 .content{
-      justify-content:flex-start;
-      align-items:flex-start;
-    }
-
-    #page-4 .col{
-      max-width:760px;
-    }
-
-    /* 细微装饰线 */
-    .divider{
-      width:100%;
-      height:1px;
-      background:var(--line);
-      margin:20px 0;
-    }
-
-    /* 页码提示 */
-    .hint{
-      position:fixed;
-      left:24px;
-      bottom:20px;
-      z-index:3;
-      color:var(--muted);
-      font-size:12px;
-      letter-spacing:1px;
-      user-select:none;
-      pointer-events:none;
-    }
-
-    .counter{
-      position:fixed;
-      right:24px;
-      bottom:20px;
-      z-index:3;
-      color:var(--muted);
-      font-size:12px;
-      letter-spacing:1px;
-      user-select:none;
-      pointer-events:none;
-    }
-
-    /* 响应式 */
-    @media (max-width: 900px){
-      .content{
-        flex-direction:column;
-        justify-content:center;
-        align-items:center;
-        text-align:center;
-        gap:28px;
-      }
-
-      .page{
-        padding: 24px;
-      }
-
-      .image-frame{
-        max-width: 92vw;
-      }
-
-      .meta{
-        font-size:14px;
-      }
-
-      .hint{
-        left:16px;
-        bottom:14px;
-      }
-
-      .counter{
-        right:16px;
-        bottom:14px;
-      }
-    }
-
-    /* iOS 安全区 */
-    @supports (padding: max(0px)) {
-      .hint{
-        bottom: max(20px, env(safe-area-inset-bottom));
-      }
-      .counter{
-        bottom: max(20px, env(safe-area-inset-bottom));
-      }
-    }
-  </style>
-</head>
-<body>
-  <canvas id="three-canvas"></canvas>
-
-  <div class="pages">
-    <div class="pages-wrapper" id="pages-wrapper">
-
-      <!-- 第1页 -->
-      <section class="page" id="page-1" data-index="0">
-        <div class="content">
-          <div class="col">
-            <div class="eyebrow">Glass Art Collection</div>
-            <h1>镜境 Glass Sculpture</h1>
-            <p>一件由AI灵感、数字建模、3D打印与玻璃烧制共同完成的当代玻璃艺术作品。请向下滑动，进入作品的不同叙事界面。</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- 第2页 -->
-      <section class="page" id="page-2" data-index="1">
-        <div class="content">
-          <div class="col" style="flex:0.58;">
-            <div class="eyebrow">Process</div>
-            <h1>从数字到物质</h1>
-            <p>AI生成 → C4D建模 → 3D打印 → 玻璃熔制与烧制。作品在数字结构与手工工艺之间转换，最终呈现出光与材质的交界。</p>
-            <div class="divider"></div>
-            <div class="meta">
-              <div>Digital Form</div>
-              <div>3D Printing Prototype</div>
-              <div>Glass Firing & Finishing</div>
-            </div>
-          </div>
-          <div class="col" style="flex:0.42;">
-            <div class="image-frame">
-              <img src="glass.png" alt="glass artwork">
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 第3页 -->
-      <section class="page" id="page-3" data-index="2">
-        <div class="content">
-          <div class="col" style="flex:0.42;">
-            <div class="image-frame">
-              <img src="glass.png" alt="glass detail">
-            </div>
-          </div>
-          <div class="col" style="flex:0.58;">
-            <div class="eyebrow">Material & Light</div>
-            <h1>玻璃的表情</h1>
-            <p>通过厚度、折射与通透性的变化，捕捉光线在表面与内部的流动。每一次烧制都让材料留下独一无二的时间痕迹。</p>
-            <div class="divider"></div>
-            <div class="meta">
-              <div>Transparency</div>
-              <div>Refraction</div>
-              <div>Reflection</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 第4页 -->
-      <section class="page" id="page-4" data-index="3">
-        <div class="content">
-          <div class="col">
-            <div class="eyebrow">About Artist</div>
-            <h1>高泽乾</h1>
-            <p>
-              南京艺术学院玻璃艺术专业<br/>
-              Email: 3586822968@qq.com<br/>
-              WeChat: gaozeqian2006<br/>
-              Douyin: 无聊艺术家<br/>
-              Tel: 18751982910
-            </p>
-            <div class="divider"></div>
-            <div class="meta">
-              这是一组关于材料、光线与工艺边界的作品探索。
-            </div>
-          </div>
-        </div>
-      </section>
-
+  <!-- Page 2 -->
+  <section id="page-2" class="page" data-index="1">
+    <div class="inner">
+      <div class="col" style="flex:0.58;">
+        <div class="eyebrow">Process</div>
+        <h1>从数字到物质</h1>
+        <p>AI 生成 → C4D 建模 → 3D 打印 → 玻璃烧制。数字与工艺的双重叙事，使材料呈现独特的光线与体积感。</p>
+        <div class="divider"></div>
+        <div style="color:var(--muted); margin-top:10px;">Digital Form · 3D Prototype · Glass Firing & Finishing</div>
+      </div>
+      <div class="col" style="flex:0.42;">
+        <div class="image-frame"><img src="glass.png" alt="glass artwork"></div>
+      </div>
     </div>
-  </div>
+  </section>
 
-  <div class="hint">滚轮 / 触摸滑动 翻页</div>
-  <div class="counter" id="counter">01 / 04</div>
+  <!-- Page 3 -->
+  <section id="page-3" class="page" data-index="2">
+    <div class="inner">
+      <div class="col" style="flex:0.42;">
+        <div class="image-frame"><img src="glass.png" alt="glass detail"></div>
+      </div>
+      <div class="col" style="flex:0.58;">
+        <div class="eyebrow">Material & Light</div>
+        <h1>玻璃的表情</h1>
+        <p>通过厚度、折射与通透性的变化，捕捉光线在表面与内部的流动。每一次烧制都是对材料时间性的雕刻。</p>
+        <div class="divider"></div>
+        <div style="color:var(--muted); margin-top:10px;">Transparency · Refraction · Reflection</div>
+      </div>
+    </div>
+  </section>
 
-  <!-- 本地资源 -->
-  <script src="three.min.js"></script>
-  <script src="GLTFLoader.js"></script>
+  <!-- Page 4 -->
+  <section id="page-4" class="page" data-index="3">
+    <div class="inner">
+      <div class="col">
+        <div class="eyebrow">About Artist</div>
+        <h1>高泽乾</h1>
+        <p>
+          南京艺术学院 · 玻璃艺术专业<br/>
+          Email: 3586822968@qq.com<br/>
+          WeChat: gaozeqian2006<br/>
+          Douyin: 无聊艺术家<br/>
+          Tel: 18751982910
+        </p>
+        <div class="divider"></div>
+        <div style="color:var(--muted); margin-top:10px;">关于材料、光线与工艺边界的持续探索。</div>
+      </div>
+    </div>
+  </section>
+</div>
+</div>
 
-  <script>
-    (() => {
-      const canvas = document.getElementById('three-canvas');
-      const pagesWrapper = document.getElementById('pages-wrapper');
-      const counter = document.getElementById('counter');
+<div class="hint">滚轮 / 触摸 滑动 翻页</div> <div class="counter" id="counter">01 / 04</div>
 
-      // ===== Three.js 初始化 =====
-      const renderer = new THREE.WebGLRenderer({
-        canvas,
-        antialias: true,
-        alpha: true
-      });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.physicallyCorrectLights = true;
-      renderer.outputEncoding = THREE.sRGBEncoding;
+<!-- 本地 Three.js 文件（请确保 three.min.js 与 GLTFLoader.js 与此文件同目录） --> <script src="three.min.js"></script> <script src="GLTFLoader.js"></script>
 
-      const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x000000);
+<script> /************************************************************************** * 玻璃艺术作品集主脚本（模块化、注释清晰） * 依赖 local: three.min.js, GLTFLoader.js, model.glb, glass.png **************************************************************************/ (function () { 'use strict';
 
-      const camera = new THREE.PerspectiveCamera(
-        40,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        200
-      );
-      camera.position.set(0, 0, 3.3);
+  // DOM 元素
+  const canvas = document.getElementById('three-canvas');
+  const pagesWrapper = document.getElementById('pages-wrapper');
+  const pageElements = Array.from(document.querySelectorAll('.page'));
+  const counterEl = document.getElementById('counter');
 
-      // 光照
-      const hemi = new THREE.HemisphereLight(0xffffff, 0x111111, 0.75);
-      scene.add(hemi);
+  // 页面数量与当前页
+  const TOTAL_PAGES = pageElements.length || 4;
+  let currentPage = 0;
+  let isPageAnimating = false;
 
-      const keyLight = new THREE.DirectionalLight(0xffffff, 1.5);
-      keyLight.position.set(5, 8, 6);
-      scene.add(keyLight);
+  // 动画缓动函数
+  function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
 
-      const fillLight = new THREE.DirectionalLight(0x88aaff, 0.35);
-      fillLight.position.set(-4, 2, 4);
-      scene.add(fillLight);
+  /* --------------------------
+     Three.js 基本变量与初始化
+     -------------------------- */
+  let renderer, scene, camera, pmremGenerator;
+  let modelGroup = null;
+  let modelRoot = null;
+  let envMap = null;
+  let currentLookAt = new THREE.Vector3(0, 0, 0);
 
-      const rimLight = new THREE.PointLight(0xffffff, 0.25, 20);
-      rimLight.position.set(-5, -3, -2);
-      scene.add(rimLight);
+  function initThree() {
+    // Renderer
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.physicallyCorrectLights = true;
 
-      // 模型容器
-      const modelGroup = new THREE.Group();
-      scene.add(modelGroup);
+    // Scene & Camera
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000);
 
-      let modelRoot = null;
+    camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 200);
+    camera.position.set(0, 0, 3.3);
 
-      // PMREM 处理环境反射
-      const pmremGenerator = new THREE.PMREMGenerator(renderer);
-      pmremGenerator.compileEquirectangularShader();
+    // Lights
+    const hemi = new THREE.HemisphereLight(0xffffff, 0x0a0a0a, 0.7);
+    scene.add(hemi);
 
-      function createEnvMap() {
-        const size = 512;
-        const cvs = document.createElement('canvas');
-        cvs.width = size;
-        cvs.height = size / 2;
-        const ctx = cvs.getContext('2d');
+    const key = new THREE.DirectionalLight(0xffffff, 1.6);
+    key.position.set(5, 8, 6);
+    scene.add(key);
 
-        const grad = ctx.createLinearGradient(0, 0, 0, cvs.height);
-        grad.addColorStop(0, '#ffffff');
-        grad.addColorStop(0.4, '#bbbccc');
-        grad.addColorStop(1, '#0a0a0a');
+    const fill = new THREE.DirectionalLight(0x7fa3ff, 0.28);
+    fill.position.set(-3, 2, 4);
+    scene.add(fill);
 
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, cvs.width, cvs.height);
+    // model group
+    modelGroup = new THREE.Group();
+    scene.add(modelGroup);
 
-        const tex = new THREE.CanvasTexture(cvs);
-        tex.needsUpdate = true;
-        tex.mapping = THREE.EquirectangularReflectionMapping;
+    // PMREM 用于 envMap（使用生成的简单渐变）
+    pmremGenerator = new THREE.PMREMGenerator(renderer);
+    pmremGenerator.compileEquirectangularShader();
+    envMap = generateEnvMap();
+  }
 
-        const envMap = pmremGenerator.fromEquirectangular(tex).texture;
-        tex.dispose();
-        return envMap;
+  // 生成基于 Canvas 的简易环境贴图（避免外部资源）
+  function generateEnvMap() {
+    const size = 1024;
+    const cvs = document.createElement('canvas');
+    cvs.width = size;
+    cvs.height = size / 2;
+    const ctx = cvs.getContext('2d');
+    const grad = ctx.createLinearGradient(0, 0, 0, cvs.height);
+    grad.addColorStop(0, '#ffffff');
+    grad.addColorStop(0.45, '#bfc7d6');
+    grad.addColorStop(1, '#050508');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, cvs.width, cvs.height);
+    const tex = new THREE.CanvasTexture(cvs);
+    tex.mapping = THREE.EquirectangularReflectionMapping;
+    const cubemap = pmremGenerator.fromEquirectangular(tex).texture;
+    tex.dispose();
+    return cubemap;
+  }
+
+  // 为模型创建玻璃材质（MeshPhysicalMaterial）
+  function createGlassMaterial(baseColor) {
+    return new THREE.MeshPhysicalMaterial({
+      color: baseColor || new THREE.Color(0xffffff),
+      metalness: 0.0,
+      roughness: 0.02,
+      transmission: 0.96,
+      thickness: 1.7,
+      ior: 1.48,
+      reflectivity: 0.6,
+      envMap: envMap,
+      envMapIntensity: 1.05,
+      transparent: true,
+      side: THREE.DoubleSide,
+      clearcoat: 0.08,
+      clearcoatRoughness: 0.0
+    });
+  }
+
+  // 加载本地 GLB 模型并替换材质为玻璃
+  function loadModel(url = 'model.glb') {
+    return new Promise((resolve, reject) => {
+      if (typeof THREE === 'undefined' || !THREE.GLTFLoader) {
+        reject(new Error('Three.js 或 GLTFLoader 未正确加载（请确保 three.min.js 与 GLTFLoader.js 在同目录）'));
+        return;
       }
 
-      const envMap = createEnvMap();
-
-      function createGlassMaterial() {
-        return new THREE.MeshPhysicalMaterial({
-          color: 0xffffff,
-          metalness: 0,
-          roughness: 0.04,
-          transmission: 0.97,
-          thickness: 1.6,
-          ior: 1.48,
-          reflectivity: 0.55,
-          transparent: true,
-          opacity: 1,
-          clearcoat: 0.1,
-          clearcoatRoughness: 0,
-          side: THREE.DoubleSide,
-          envMap: envMap,
-          envMapIntensity: 1.15
-        });
-      }
-
-      // 加载本地 GLB
       const loader = new THREE.GLTFLoader();
-      loader.load(
-        'model.glb',
-        (gltf) => {
-          modelRoot = gltf.scene;
-          modelGroup.add(modelRoot);
+      loader.load(url, (gltf) => {
+        modelRoot = gltf.scene || gltf.scenes[0];
+        if (!modelRoot) { reject(new Error('GLB 内未找到场景')); return; }
 
-          // 居中和缩放模型
-          const box = new THREE.Box3().setFromObject(modelRoot);
-          const size = new THREE.Vector3();
-          box.getSize(size);
-          const center = new THREE.Vector3();
-          box.getCenter(center);
+        // 清理组，添加模型
+        modelGroup.clear();
+        modelGroup.add(modelRoot);
 
-          const maxDim = Math.max(size.x, size.y, size.z);
-          const scale = 1.6 / (maxDim || 1);
-          modelRoot.scale.setScalar(scale);
+        // 计算包围盒并居中、缩放到合理大小
+        const bbox = new THREE.Box3().setFromObject(modelRoot);
+        const size = new THREE.Vector3();
+        bbox.getSize(size);
+        const center = new THREE.Vector3();
+        bbox.getCenter(center);
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const targetSize = 1.6; // 标准化尺寸
+        const scale = (maxDim > 0) ? (targetSize / maxDim) : 1;
+        modelRoot.scale.setScalar(scale);
+        modelRoot.position.sub(center.multiplyScalar(scale));
 
-          modelRoot.position.sub(center.multiplyScalar(scale));
-
-          // 替换为玻璃材质
-          modelRoot.traverse((obj) => {
-            if (obj.isMesh) {
-              const mat = createGlassMaterial();
-              if (obj.material && obj.material.map) {
-                mat.map = obj.material.map;
-              }
-              if (obj.material && obj.material.color) {
-                mat.color = obj.material.color.clone();
-              }
-              obj.material = mat;
-              obj.castShadow = true;
-              obj.receiveShadow = true;
+        // 遍历替换材质
+        modelRoot.traverse((obj) => {
+          if (obj.isMesh) {
+            const baseColor = (obj.material && obj.material.color) ? obj.material.color.clone() : new THREE.Color(0xffffff);
+            const glass = createGlassMaterial(baseColor);
+            // 传递原贴图（如果有）以保留细节
+            if (obj.material && obj.material.map) {
+              glass.map = obj.material.map;
+              glass.map.encoding = THREE.sRGBEncoding;
             }
-          });
+            obj.material = glass;
+            obj.castShadow = true;
+            obj.receiveShadow = true;
+          }
+        });
 
-          applyStateInstant(currentPage);
-        },
-        undefined,
-        (err) => {
-          console.error('模型加载失败：', err);
-          alert('model.glb 加载失败，请确认文件路径与命名正确。');
-        }
-      );
+        resolve(modelRoot);
+      }, undefined, (err) => {
+        reject(err);
+      });
+    });
+  }
 
-      // ===== 页面状态定义 =====
-      const pageStates = [
-        {
-          camPos: new THREE.Vector3(0, 0.05, 3.1),
-          lookAt: new THREE.Vector3(0, 0, 0),
-          modelPos: new THREE.Vector3(0, 0, 0),
-          modelScale: 1.15,
-          autoRotate: true
-        },
-        {
-          camPos: new THREE.Vector3(0.75, 0.08, 3.7),
-          lookAt: new THREE.Vector3(0.45, 0, 0),
-          modelPos: new THREE.Vector3(0.85, -0.05, 0),
-          modelScale: 0.72,
-          autoRotate: false
-        },
-        {
-          camPos: new THREE.Vector3(-0.75, 0.08, 3.7),
-          lookAt: new THREE.Vector3(-0.45, 0, 0),
-          modelPos: new THREE.Vector3(-0.85, -0.05, 0),
-          modelScale: 0.72,
-          autoRotate: false
-        },
-        {
-          camPos: new THREE.Vector3(0, 0.12, 4.6),
-          lookAt: new THREE.Vector3(0, 0, 0),
-          modelPos: new THREE.Vector3(0, -0.55, 0),
-          modelScale: 0.28,
-          autoRotate: false
-        }
-      ];
+  /* --------------------------
+     页面状态（相机/模型位置/缩放/自动旋转）
+     -------------------------- */
+  const pageStates = [
+    /* Page 1: 中心，放大，自动慢转 */
+    {
+      camPos: new THREE.Vector3(0, 0.05, 3.1),
+      lookAt: new THREE.Vector3(0, 0, 0),
+      modelPos: new THREE.Vector3(0, 0, 0),
+      modelScale: 1.15,
+      autoRotate: true
+    },
+    /* Page 2: 模型右侧，缩小 */
+    {
+      camPos: new THREE.Vector3(0.75, 0.08, 3.7),
+      lookAt: new THREE.Vector3(0.45, 0, 0),
+      modelPos: new THREE.Vector3(0.85, -0.05, 0),
+      modelScale: 0.72,
+      autoRotate: false
+    },
+    /* Page 3: 模型左侧，缩小 */
+    {
+      camPos: new THREE.Vector3(-0.75, 0.08, 3.7),
+      lookAt: new THREE.Vector3(-0.45, 0, 0),
+      modelPos: new THREE.Vector3(-0.85, -0.05, 0),
+      modelScale: 0.72,
+      autoRotate: false
+    },
+    /* Page 4: 微缩，靠下 */
+    {
+      camPos: new THREE.Vector3(0, 0.12, 4.6),
+      lookAt: new THREE.Vector3(0, 0, 0),
+      modelPos: new THREE.Vector3(0, -0.55, 0),
+      modelScale: 0.28,
+      autoRotate: false
+    }
+  ];
 
-      const totalPages = pageStates.length;
-      let currentPage = 0;
-      let isAnimating = false;
-      let lastWheelTime = 0;
+  /* --------------------------
+     切换与动画：页面切换时相机与模型平滑过渡
+     -------------------------- */
+  let animating = false;
+  function applyStateInstant(index) {
+    const s = pageStates[index];
+    camera.position.copy(s.camPos);
+    currentLookAt.copy(s.lookAt);
+    if (modelRoot) {
+      modelRoot.position.copy(s.modelPos);
+      modelRoot.scale.setScalar(s.modelScale);
+    }
+    updateCounter(index);
+    updatePagesTransform(index);
+  }
 
-      const currentLookAt = new THREE.Vector3(0, 0, 0);
+  function animateToState(index, duration = 900) {
+    if (animating) return Promise.resolve();
+    animating = true;
+    const target = pageStates[index];
 
-      function updateCounter() {
-        counter.textContent = `${String(currentPage + 1).padStart(2, '0')} / ${String(totalPages).padStart(2, '0')}`;
-      }
+    // capture starts
+    const startTime = performance.now();
+    const startCam = camera.position.clone();
+    const startLook = currentLookAt.clone();
+    const startModelPos = modelRoot ? modelRoot.position.clone() : new THREE.Vector3();
+    const startScale = modelRoot ? modelRoot.scale.x : 1;
 
-      function updatePagesWrapper(index) {
-        pagesWrapper.style.transform = `translateY(${-index * window.innerHeight}px)`;
-      }
+    return new Promise((resolve) => {
+      function frame(now) {
+        const t = Math.min(1, (now - startTime) / duration);
+        const e = easeOutCubic(t);
 
-      function applyStateInstant(index) {
-        const state = pageStates[index];
-        camera.position.copy(state.camPos);
-        currentLookAt.copy(state.lookAt);
+        // Camera position lerp
+        camera.position.lerpVectors(startCam, target.camPos, e);
+        currentLookAt.lerpVectors(startLook, target.lookAt, e);
 
+        // Model transform
         if (modelRoot) {
-          modelRoot.position.copy(state.modelPos);
-          modelRoot.scale.setScalar(state.modelScale);
+          modelRoot.position.lerpVectors(startModelPos, target.modelPos, e);
+          const sVal = startScale + (target.modelScale - startScale) * e;
+          modelRoot.scale.setScalar(sVal);
         }
 
-        updateCounter();
-        updatePagesWrapper(index);
-      }
-
-      function animateToState(target, duration = 900) {
-        if (!modelRoot) return;
-
-        const startTime = performance.now();
-        const startCam = camera.position.clone();
-        const startLook = currentLookAt.clone();
-        const startPos = modelRoot.position.clone();
-        const startScale = modelRoot.scale.clone();
-
-        function easeOutCubic(t) {
-          return 1 - Math.pow(1 - t, 3);
-        }
-
-        function tick(now) {
-          const t = Math.min(1, (now - startTime) / duration);
-          const e = easeOutCubic(t);
-
-          camera.position.lerpVectors(startCam, target.camPos, e);
-          currentLookAt.lerpVectors(startLook, target.lookAt, e);
-
-          modelRoot.position.lerpVectors(startPos, target.modelPos, e);
-
-          const s = startScale.x + (target.modelScale - startScale.x) * e;
-          modelRoot.scale.setScalar(s);
-
-          if (t < 1) {
-            requestAnimationFrame(tick);
-          } else {
-            isAnimating = false;
-          }
-        }
-
-        requestAnimationFrame(tick);
-      }
-
-      function goToPage(index) {
-        if (isAnimating) return;
-        if (index < 0 || index >= totalPages || index === currentPage) return;
-
-        isAnimating = true;
-        currentPage = index;
-        updateCounter();
-        updatePagesWrapper(index);
-        animateToState(pageStates[index]);
-      }
-
-      // ===== 渲染循环 =====
-      let lastTime = performance.now();
-      const autoRotateSpeed = 0.18;
-
-      function render(now) {
-        const dt = (now - lastTime) / 1000;
-        lastTime = now;
-
-        if (modelRoot && pageStates[currentPage].autoRotate) {
-          modelRoot.rotation.y += autoRotateSpeed * dt;
-        }
-
-        camera.lookAt(currentLookAt);
-        renderer.render(scene, camera);
-        requestAnimationFrame(render);
-      }
-
-      requestAnimationFrame(render);
-
-      // ===== 交互：滚轮翻页 =====
-      window.addEventListener('wheel', (e) => {
-        e.preventDefault();
-
-        const now = performance.now();
-        if (now - lastWheelTime < 500) return;
-
-        if (e.deltaY > 0) {
-          goToPage(currentPage + 1);
+        if (t < 1) {
+          requestAnimationFrame(frame);
         } else {
-          goToPage(currentPage - 1);
+          animating = false;
+          resolve();
         }
+      }
+      requestAnimationFrame(frame);
+    });
+  }
 
-        lastWheelTime = now;
-      }, { passive: false });
+  /* --------------------------
+     翻页 DOM 过渡（pages-wrapper）
+     -------------------------- */
+  function updatePagesTransform(index) {
+    pagesWrapper.style.transform = `translateY(${-index * window.innerHeight}px)`;
+  }
+  function updateCounter(index) {
+    counterEl.textContent = `${String(index + 1).padStart(2, '0')} / ${String(TOTAL_PAGES).padStart(2, '0')}`;
+  }
 
-      // ===== 交互：手机触摸滑动翻页 =====
-      let touchStartY = 0;
-      let touchStartTime = 0;
+  // goToPage：防抖、状态更新、触发动画
+  let lastScrollTime = 0;
+  function goToPage(index) {
+    if (index < 0 || index >= TOTAL_PAGES) return;
+    if (index === currentPage) return;
+    if (isPageAnimating) return;
+    isPageAnimating = true;
 
-      window.addEventListener('touchstart', (e) => {
-        if (e.touches.length === 1) {
-          touchStartY = e.touches[0].clientY;
-          touchStartTime = performance.now();
-        }
-      }, { passive: true });
+    // DOM 页面滑动（视觉）
+    updatePagesTransform(index);
 
-      window.addEventListener('touchmove', (e) => {
-        if (e.touches.length === 1) {
-          e.preventDefault();
-        }
-      }, { passive: false });
+    // Three.js 相机/模型动画（若模型尚未加载，仍移动相机）
+    animateToState(index).finally(() => {
+      currentPage = index;
+      updateCounter(index);
+      // small delay to align with pages-wrapper transition
+      setTimeout(() => { isPageAnimating = false; }, 160);
+    });
+  }
 
-      window.addEventListener('touchend', (e) => {
-        const touch = e.changedTouches[0];
-        if (!touch) return;
+  /* --------------------------
+     渲染循环
+     -------------------------- */
+  let lastTime = performance.now();
+  const autoRotateSpeed = 0.18; // rad/s
 
-        const dy = touchStartY - touch.clientY;
-        const dt = performance.now() - touchStartTime;
+  function renderLoop(now) {
+    const dt = (now - lastTime) / 1000;
+    lastTime = now;
 
-        if (Math.abs(dy) > 50 && dt < 1000) {
-          if (dy > 0) {
-            goToPage(currentPage + 1);
-          } else {
-            goToPage(currentPage - 1);
-          }
-        }
-      }, { passive: true });
+    // 模型自动旋转（仅在当前页允许）
+    if (modelRoot && pageStates[currentPage].autoRotate) {
+      modelRoot.rotation.y += autoRotateSpeed * dt;
+    }
 
-      // ===== 键盘支持 =====
-      window.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowDown' || e.key === 'PageDown') goToPage(currentPage + 1);
-        if (e.key === 'ArrowUp' || e.key === 'PageUp') goToPage(currentPage - 1);
-      });
+    // 相机注视点更新并渲染
+    camera.lookAt(currentLookAt);
+    renderer.render(scene, camera);
+    requestAnimationFrame(renderLoop);
+  }
 
-      // ===== 自适应尺寸 =====
-      window.addEventListener('resize', () => {
-        const w = window.innerWidth;
-        const h = window.innerHeight;
-        renderer.setSize(w, h);
-        camera.aspect = w / h;
-        camera.updateProjectionMatrix();
+  /* --------------------------
+     事件处理：滚轮 / 触摸 / 键盘 / 窗口尺寸
+     -------------------------- */
+  // 滚轮翻页（节流）
+  function onWheel(e) {
+    e.preventDefault();
+    const now = performance.now();
+    if (now - lastScrollTime < 450) return; // 节流
+    const delta = e.deltaY;
+    if (Math.abs(delta) < 10) return;
+    if (delta > 0) goToPage(currentPage + 1); else goToPage(currentPage - 1);
+    lastScrollTime = now;
+  }
 
-        updatePagesWrapper(currentPage);
-      });
+  // 触摸翻页（移动阈值）
+  let touchStartY = null;
+  let touchStartTime = 0;
+  function onTouchStart(e) {
+    if (e.touches && e.touches.length === 1) {
+      touchStartY = e.touches[0].clientY;
+      touchStartTime = performance.now();
+    }
+  }
+  function onTouchMove(e) {
+    // 阻止页面默认滚动以获得流畅的翻页体验
+    if (e.touches && e.touches.length === 1) e.preventDefault();
+  }
+  function onTouchEnd(e) {
+    if (touchStartY === null) return;
+    const touch = e.changedTouches && e.changedTouches[0];
+    if (!touch) { touchStartY = null; return; }
+    const dy = touchStartY - touch.clientY;
+    const dt = performance.now() - touchStartTime;
+    const threshold = Math.max(48, window.innerHeight * 0.08);
+    if (Math.abs(dy) > threshold && dt < 1000) {
+      if (dy > 0) goToPage(currentPage + 1); else goToPage(currentPage - 1);
+    }
+    touchStartY = null;
+  }
 
-      // 初始状态
-      updateCounter();
+  // 键盘翻页
+  function onKeyDown(e) {
+    if (e.key === 'ArrowDown' || e.key === 'PageDown') goToPage(currentPage + 1);
+    if (e.key === 'ArrowUp' || e.key === 'PageUp') goToPage(currentPage - 1);
+  }
+
+  // 窗口调整：更新 renderer 与 pagesWrapper 位置
+  function onResize() {
+    const w = window.innerWidth, h = window.innerHeight;
+    if (renderer && camera) {
+      renderer.setSize(w, h);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    updatePagesTransform(currentPage);
+  }
+
+  /* --------------------------
+     初始化与启动流程
+     -------------------------- */
+  async function start() {
+    // 初始化 Three
+    try {
+      initThree();
+    } catch (err) {
+      console.error('Three 初始化失败：', err);
+      // 仍继续，不阻断页面滑动
+    }
+
+    // 先设置初始 DOM 位置与计数器
+    updatePagesTransform(0);
+    updateCounter(0);
+
+    // 尝试加载模型（若失败仍允许页面交互）
+    try {
+      await loadModel('model.glb');
+      // 设置初始状态（如果模型加载成功）
       applyStateInstant(0);
+    } catch (err) {
+      console.error('模型加载失败：', err);
+      // 在界面提示（非阻断）
+      // 开发阶段可以 alert()；在生产不打断用户体验
+      console.warn('model.glb 加载失败，请确认文件在同一目录并通过本地服务器打开页面。');
+    }
 
-      // 图片防拖拽
-      document.addEventListener('dragstart', (e) => e.preventDefault());
-    })();
-  </script>
-</body>
-</html>
+    // 事件绑定
+    window.addEventListener('wheel', onWheel, { passive: false });
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: false });
+    window.addEventListener('touchend', onTouchEnd, { passive: true });
+    window.addEventListener('keydown', onKeyDown, { passive: true });
+    window.addEventListener('resize', onResize, { passive: true });
+
+    // 启动渲染循环（只有当 renderer 存在时）
+    if (renderer && scene && camera) {
+      lastTime = performance.now();
+      requestAnimationFrame(renderLoop);
+    }
+  }
+
+  // 快捷点击（可用键盘或交互时跳转）
+  // 例如：在页面元素上添加 data-goto 可跳转到某页（保留扩展）
+  document.addEventListener('click', (ev) => {
+    const t = ev.target.closest('[data-goto]');
+    if (!t) return;
+    const idx = parseInt(t.getAttribute('data-goto'), 10);
+    if (!isNaN(idx)) goToPage(idx);
+  }, { passive: true });
+
+  // 启动
+  start();
+
+  // 防止图片拖动影响交互
+  document.addEventListener('dragstart', (e) => e.preventDefault());
+
+})();
+
+</script> </body> </html>
