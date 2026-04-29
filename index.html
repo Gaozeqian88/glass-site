@@ -1,101 +1,179 @@
-<!DOCTYPE html> <html lang="zh-CN"> <head> <meta charset="utf-8" /> <title>模型加载（模块版）</title> <meta name="viewport" content="width=device-width,initial-scale=1" /> <style> html,body{height:100%;margin:0;background:#050505;color:#fff;font-family:Arial,Helvetica,sans-serif} #c{display:block;width:100%;height:100%} #info{position:fixed;left:12px;top:12px;z-index:20;background:rgba(0,0,0,0.6);padding:10px;border-radius:6px;max-width:calc(100% - 24px)} #info b{display:block;margin-bottom:6px} #log{white-space:pre-wrap;font-size:13px;line-height:1.3} a{color:#8fd4ff} </style> </head> <body> <canvas id="c"></canvas> <div id="info"> <b id="status">状态：准备中…</b> <div id="log">提示：请用本地服务器打开（推荐）。</div> </div>
-<script type="module"> import * as THREE from 'https://unpkg.com/three@0.150.1/build/three.module.js'; import { OrbitControls } from 'https://unpkg.com/three@0.150.1/examples/jsm/controls/OrbitControls.js'; import { GLTFLoader } from 'https://unpkg.com/three@0.150.1/examples/jsm/loaders/GLTFLoader.js';
-const statusEl = document.getElementById('status');
-const logEl = document.getElementById('log');
-function log(...args){ console.log(...args); logEl.innerText += '\\n' + args.map(a=> (typeof a==='object'?JSON.stringify(a):String(a))).join(' '); }
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Glass Site</title>
+  <style>
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #111;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    #container {
+      position: fixed;
+      inset: 0;
+    }
+    #loading {
+      position: fixed;
+      left: 16px;
+      top: 16px;
+      color: #fff;
+      background: rgba(0,0,0,0.55);
+      padding: 10px 14px;
+      border-radius: 8px;
+      z-index: 10;
+      font-size: 14px;
+      line-height: 1.4;
+      max-width: calc(100vw - 32px);
+      white-space: pre-wrap;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <div id="loading">正在加载中，请稍等...</div>
 
-const localModel = 'model.glb'; // 请确保 model.glb 与 index.html 在同一文件夹
-const fallbackModel = 'https://rawcdn.githack.com/KhronosGroup/glTF-Sample-Models/master/2.0/Box/glTF-Binary/Box.glb';
+  <script type="module">
+    import * as THREE from 'https://unpkg.com/three@0.150.1/build/three.module.js';
+    import { OrbitControls } from 'https://unpkg.com/three@0.150.1/examples/jsm/controls/OrbitControls.js';
+    import { GLTFLoader } from 'https://unpkg.com/three@0.150.1/examples/jsm/loaders/GLTFLoader.js';
 
-// 渲染器与场景
-const canvas = document.getElementById('c');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x111111);
+    const loadingEl = document.getElementById('loading');
+    const container = document.getElementById('container');
 
-const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.set(0, 1.2, 3);
+    function setLoading(text) {
+      loadingEl.textContent = text;
+      console.log(text);
+    }
 
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
+    // 场景
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x111111);
 
-// 灯光
-scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.0));
-const dl = new THREE.DirectionalLight(0xffffff, 0.8);
-dl.position.set(5,5,5); scene.add(dl);
+    // 相机
+    const camera = new THREE.PerspectiveCamera(
+      50,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+    );
+    camera.position.set(0, 1.2, 3);
 
-window.addEventListener('resize', ()=> {
-  camera.aspect = window.innerWidth/window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
+    // 渲染器
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
 
-const loader = new GLTFLoader();
+    // 控制器
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
 
-function tryLoad(url, onSuccess, onProgress, onError) {
-  statusEl.innerText = '状态：正在加载 → ' + url;
-  log('尝试加载：' + url);
-  loader.load(url, gltf => {
-    log('加载成功：' + url);
-    onSuccess(gltf);
-  }, p => {
-    const perc = p.total ? Math.round(p.loaded / p.total * 100) + '%' : Math.round(p.loaded/1024) + ' KB';
-    statusEl.innerText = '状态：加载中 ' + url + ' (' + perc + ')';
-    log('进度：', url, perc);
-    if (onProgress) onProgress(p);
-  }, err => {
-    log('加载出错：', url, err && (err.message || err));
-    if (onError) onError(err);
-  });
-}
+    // 灯光
+    const ambient = new THREE.AmbientLight(0xffffff, 1.6);
+    scene.add(ambient);
 
-function placeModel(gltf, sourceName){
-  // 移除旧模型
-  const old = scene.getObjectByName('__user_model_group');
-  if (old) scene.remove(old);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 2.0);
+    dirLight.position.set(5, 10, 5);
+    scene.add(dirLight);
 
-  const group = new THREE.Group(); group.name = '__user_model_group';
-  group.add(gltf.scene);
-  scene.add(group);
+    // 地面参考（可删）
+    const grid = new THREE.GridHelper(10, 10, 0x444444, 0x222222);
+    scene.add(grid);
 
-  // 居中与缩放
-  const box = new THREE.Box3().setFromObject(gltf.scene);
-  const size = new THREE.Vector3(); box.getSize(size);
-  const center = new THREE.Vector3(); box.getCenter(center);
-  gltf.scene.position.sub(center);
-  const maxDim = Math.max(size.x, size.y, size.z) || 1;
-  const scale = 1.6 / maxDim;
-  gltf.scene.scale.setScalar(scale);
+    // 模型加载
+    const loader = new GLTFLoader();
 
-  statusEl.innerText = '状态：模型已加载（' + sourceName + '）';
-  log('模型尺寸：', size, '缩放：', scale);
-}
+    // 你的本地模型文件，必须和 index.html 在同一目录
+    const localModel = './model.glb';
 
-// 先尝试本地 model.glb
-tryLoad(localModel, gltf => {
-  placeModel(gltf, '本地 model.glb');
-}, null, err => {
-  // 本地失败 -> 尝试在线备用
-  statusEl.innerText = '状态：本地 model.glb 加载失败，尝试在线示例…';
-  log('本地加载失败，尝试备用： ' + fallbackModel);
-  tryLoad(fallbackModel, gltf => {
-    placeModel(gltf, '在线示例 (fallback)');
-  }, null, err2 => {
-    statusEl.innerText = '状态：本地与在线模型均加载失败，请查看控制台错误';
-    log('两次加载失败。常见原因：文件名/位置错误、用 file:// 打开导致被阻止（请用本地服务器）、或模型损坏。');
-  });
-});
+    // 在线备用模型（用于测试）
+    const fallbackModel = 'https://rawcdn.githack.com/KhronosGroup/glTF-Sample-Models/master/2.0/Box/glTF-Binary/Box.glb';
 
-// 动画
-(function animate(){
-  requestAnimationFrame(animate);
-  controls.update();
-  renderer.render(scene, camera);
-})();
+    function centerAndScale(object) {
+      const box = new THREE.Box3().setFromObject(object);
+      const size = new THREE.Vector3();
+      const center = new THREE.Vector3();
+      box.getSize(size);
+      box.getCenter(center);
 
-// 捕获模块脚本错误并打印
-window.addEventListener('error', e => { log('window.onerror:', e.message || e); });
-window.addEventListener('unhandledrejection', e => { log('UnhandledRejection:', e.reason || e); });
-</script> </body> </html>
+      object.position.x += (object.position.x - center.x);
+      object.position.y += (object.position.y - center.y);
+      object.position.z += (object.position.z - center.z);
+
+      const maxAxis = Math.max(size.x, size.y, size.z);
+      if (maxAxis > 0) {
+        const scale = 1.5 / maxAxis;
+        object.scale.setScalar(scale);
+      }
+    }
+
+    function loadModel(url, label, onDone, onFail) {
+      setLoading(`正在加载 ${label} ...`);
+      loader.load(
+        url,
+        (gltf) => {
+          const model = gltf.scene;
+          centerAndScale(model);
+          scene.add(model);
+          setLoading(`${label} 加载成功`);
+          onDone && onDone(model);
+        },
+        (xhr) => {
+          if (xhr.total) {
+            const p = Math.round((xhr.loaded / xhr.total) * 100);
+            setLoading(`正在加载 ${label} ... ${p}%`);
+          } else {
+            setLoading(`正在加载 ${label} ...`);
+          }
+        },
+        (err) => {
+          console.error(`加载失败: ${label}`, err);
+          onFail && onFail(err);
+        }
+      );
+    }
+
+    // 先加载本地 model.glb，失败就加载备用在线模型
+    loadModel(
+      localModel,
+      '本地模型 model.glb',
+      () => {},
+      () => {
+        setLoading('本地 model.glb 加载失败，正在尝试在线示例模型...');
+        loadModel(
+          fallbackModel,
+          '在线示例模型',
+          () => {},
+          (err) => {
+            setLoading('模型加载失败，请打开控制台查看错误');
+            console.error('本地和在线模型都失败了', err);
+          }
+        );
+      }
+    );
+
+    // 旋转动画
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // 窗口大小变化
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
