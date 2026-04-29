@@ -3,62 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Glass Art Portfolio — 高泽乾</title>
-  <meta name="description" content="高泽乾（南京艺术学院 玻璃艺术专业）个人3D玻璃作品集 · 实时交互呈现">
-  <meta property="og:title" content="Glass Art Portfolio — 高泽乾">
-  <meta property="og:description" content="南京艺术学院 玻璃艺术专业 · 玻璃作品3D交互展示">
+  <title>ZEQIAN GLASS — 玻璃艺术 HIGH-END PORTFOLIO</title>
+  <meta name="description" content="高泽乾 · 玻璃艺术 · 南京艺术学院 · 品牌级高端作品集">
+  <meta property="og:title" content="ZEQIAN GLASS — Art Portfolio">
+  <meta property="og:description" content="极致玻璃美学，3D互动体验。">
   <meta property="og:image" content="glass.png">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <!-- 导航 -->
   <nav class="navbar glass">
-    <div class="site-title">Glass Art Portfolio</div>
+    <div class="brand-logo">
+      <img src="gaozeqian.jpg" alt="高泽乾" />
+      <span>ZEQIAN GLASS</span>
+    </div>
     <ul class="nav-links">
-      <li><a href="index.html">首页</a></li>
-      <li><a href="work.html">作品详情</a></li>
-      <li><a href="#about">关于作者</a></li>
+      <li><a href="index.html" class="active">首页</a></li>
+      <li><a href="works.html">作品集</a></li>
+      <li><a href="about.html">关于ZEQIAN</a></li>
     </ul>
   </nav>
-  <div class="container">
-    <!-- 左侧信息（移动端在下方） -->
-    <aside class="glass info-panel">
-      <img src="glass.png" alt="艺术家自选封面" class="profile-img"/>
-      <h1>高泽乾</h1>
-      <p>南京艺术学院<br>玻璃艺术专业 大二学生</p>
-      <p class="about-highlight">玻璃的通透本质，是我对未来艺术的感知实验。</p>
-      <div class="contact">
-        <span>📧 <a href="mailto:3586822968@qq.com">3586822968@qq.com</a></span>
-        <span>抖音：<a href="https://www.douyin.com/user/MS4wLjABAAAADyx5bafakepkg8I">无聊艺术家</a></span>
-        <span>
-          <button onclick="alert('微信号：gaozeqian2006\n手机号：18751982910')">显示更多联系方式</button>
-        </span>
+  <main id="main-landing">
+    <section class="hero glass">
+      <div class="hero-title">
+        <h1>GLASS<br>ART<br>PORTFOLIO</h1>
+        <h2>极致·通透·未来美学</h2>
+        <p>Brand-like Experience by <b>高泽乾</b></p>
+        <a href="works.html" class="cta-btn glass">探索作品</a>
       </div>
-      <div class="work-list">
-        <h2>作品精选</h2>
-        <ul>
-          <li>Prism Bloom</li>
-          <li>Crystal Vessel</li>
-          <li>Liquid Memory</li>
-        </ul>
-      </div>
-    </aside>
-    <!-- 3D展示区 -->
-    <main class="glass main-area">
-      <canvas id="three-canvas"></canvas>
-      <div class="loading-overlay" id="loading-overlay">
-        <div class="loading-content">
-          <div id="progress-text">加载中… 0%</div>
-          <div id="loading-hint"></div>
+      <div class="hero-3d">
+        <canvas id="three-canvas"></canvas>
+        <div class="loading-overlay" id="loading-overlay">
+          <div class="loading-content">
+            <div id="progress-text">加载中… 0%</div>
+            <div id="loading-hint"></div>
+          </div>
         </div>
       </div>
-    </main>
-  </div>
-  <!-- 关于作者区 -->
-  <section class="glass about-section" id="about">
-    <h2>关于作者</h2>
-    <p>我是高泽乾，现为南京艺术学院玻璃艺术专业大二学生。专注于数字雕塑与材料实验，热爱用三维互动方式探索“玻璃”的精神与未来美学。</p>
-  </section>
+    </section>
+    <footer>
+      <span>© 2026 ZEQIAN GLASS · Inspired by Luxury Brands · Powered by Art & Code</span>
+    </footer>
+  </main>
   <script type="module" src="js/main.js"></script>
 </body>
 </html>
