@@ -1,373 +1,93 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>镜境 — 玻璃艺术</title>
-  <style>
-    html, body {
-      margin: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: #050505;
-      font-family: Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
-      color: #e8dfd2;
-    }
+ <!DOCTYPE html> <html lang="zh-CN"> <head> <meta charset="utf-8" /> <title>模型加载诊断</title> <meta name="viewport" content="width=device-width, initial-scale=1" /> <style> html,body{height:100%;margin:0;background:#050505;color:#fff;font-family:Arial,Helvetica,sans-serif} #c{display:block;width:100%;height:100%} #overlay{position:fixed;left:12px;top:12px;z-index:20;background:rgba(0,0,0,0.5);padding:10px;border-radius:6px;max-width:calc(100% - 24px)} #overlay b{display:block;margin-bottom:6px} #log{white-space:pre-wrap;font-size:13px;line-height:1.3} a{color:#8fd4ff} </style> </head> <body> <canvas id="c"></canvas> <div id="overlay"> <b id="status">状态：正在尝试加载本地 model.glb …</b> <div id="log">提示：请按 F12 打开控制台（Console）。页面会尝试本地加载 model.glb，然后尝试在线示例。</div> </div>
+<!-- 使用 CDN，不依赖本地 three.min.js 等 --> <script src="https://unpkg.com/three@0.150.1/build/three.min.js"></script> <script src="https://unpkg.com/three@0.150.1/examples/js/loaders/GLTFLoader.js"></script> <script src="https://unpkg.com/three@0.150.1/examples/js/controls/OrbitControls.js"></script>
+<script> const statusEl = document.getElementById('status'); const logEl = document.getElementById('log'); function log(...args){ console.log(...args); logEl.innerText += '\n' + args.map(a=> (typeof a==='object'?JSON.stringify(a):String(a))).join(' '); } window.addEventListener('error', e => { log('window.onerror: ', e.message || e); });
+// 三个重要路径
+const localModel = 'model.glb'; // 你本地的模型（必须与 index.html 同一文件夹）
+const fallbackModel = 'https://rawcdn.githack.com/KhronosGroup/glTF-Sample-Models/master/2.0/Box/glTF-Binary/Box.glb';
 
-    canvas {
-      display: block;
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
+// 基本场景
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x111111);
+const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.1, 100);
+camera.position.set(0, 1.2, 3);
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.0));
+const dl = new THREE.DirectionalLight(0xffffff, 0.8); dl.position.set(5,5,5); scene.add(dl);
 
-    .overlay {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background:
-        radial-gradient(circle at center, rgba(255,255,255,0.04), rgba(0,0,0,0.85) 70%),
-        linear-gradient(to bottom, rgba(255,255,255,0.03), transparent 30%, rgba(0,0,0,0.4));
-      z-index: 2;
-    }
+window.addEventListener('resize', ()=> {
+  camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
 
-    .ui {
-      position: fixed;
-      left: 20px;
-      bottom: 20px;
-      z-index: 3;
-      font-size: 12px;
-      line-height: 1.8;
-      color: rgba(255,255,255,0.7);
-      user-select: none;
-    }
+const loader = new THREE.GLTFLoader();
 
-    .page-title {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      z-index: 3;
-      font-size: 14px;
-      letter-spacing: 2px;
-      color: rgba(255,255,255,0.8);
-      user-select: none;
-    }
+function tryLoad(url, onSuccess, onProgress, onError) {
+  statusEl.innerText = '状态：正在加载 → ' + url;
+  log('尝试加载：', url);
+  loader.load(url, gltf => {
+    log('加载成功：', url);
+    onSuccess(gltf);
+  }, p => {
+    const perc = p.total ? Math.round(p.loaded / p.total * 100) + '%' : Math.round(p.loaded/1024) + ' bytes';
+    statusEl.innerText = '状态：加载中 ' + url + ' (' + perc + ')';
+    // 每次进度也写到 log，便于查看
+    log('进度：', url, perc);
+    if (onProgress) onProgress(p);
+  }, err => {
+    log('加载出错：', url, err && (err.message || err));
+    if (onError) onError(err);
+  });
+}
 
-    .handle {
-      position: fixed;
-      right: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: 3;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+function placeModel(gltf){
+  // 清空先前对象（如果有）
+  const old = scene.getObjectByName('__user_model_group');
+  if (old) scene.remove(old);
+  const group = new THREE.Group();
+  group.name = '__user_model_group';
+  group.add(gltf.scene);
+  scene.add(group);
 
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.2);
-    }
+  // 简单居中与缩放
+  const box = new THREE.Box3().setFromObject(gltf.scene);
+  const size = new THREE.Vector3(); box.getSize(size);
+  const center = new THREE.Vector3(); box.getCenter(center);
+  gltf.scene.position.sub(center);
+  const maxDim = Math.max(size.x, size.y, size.z) || 1;
+  const scale = 1.6 / maxDim;
+  gltf.scene.scale.setScalar(scale);
 
-    .dot.active {
-      background: #fff;
-      box-shadow: 0 0 15px rgba(255,255,255,0.5);
-    }
+  statusEl.innerText = '状态：模型已加载成功（来自 ' + (gltf.userDataSource||'本地') + '）';
+  log('模型尺寸：', size, '缩放：', scale);
+}
 
-    .pageText {
-      position: fixed;
-      top: 50%;
-      right: 8%;
-      transform: translateY(-50%);
-      width: min(420px, 80vw);
-      z-index: 3;
-      text-align: right;
-      pointer-events: none;
-    }
+// 1. 先尝试加载本地 model.glb
+tryLoad(localModel, function(gltf){
+  gltf.userDataSource = '本地 model.glb';
+  placeModel(gltf);
+}, null, function(err){
+  // 本地加载失败后尝试在线示例
+  statusEl.innerText = '状态：本地 model.glb 加载失败，正在尝试在线示例…';
+  log('本地加载失败，尝试在线备用模型：', fallbackModel);
+  tryLoad(fallbackModel, function(gltf){
+    gltf.userDataSource = '在线示例 (fallback)';
+    placeModel(gltf);
+  }, null, function(err2){
+    // 两者都失败，给出可能原因和建议
+    statusEl.innerText = '状态：本地和在线模型都加载失败，请看下方建议（并把控制台第一条红色错误贴给我）';
+    log('两次加载均失败。可能原因：\n1) 本地 model.glb 未放在与 index.html 同一文件夹，或文件名不正确；\n2) 你是通过 file:// 打开页面，浏览器阻止了模型加载（CORS）——请用本地服务器；\n3) 网络或防火墙阻止访问外部资源；\n4) 模型文件损坏。');
+    log('诊断提示：如果你使用的是 file://（直接双击打开），请在该文件夹打开终端运行：\n  python -m http.server 8000\n然后在浏览器打开 http://localhost:8000 再试。');
+  });
+});
 
-    .pageText h1 {
-      margin: 0 0 10px 0;
-      font-size: clamp(32px, 5vw, 64px);
-      font-weight: 700;
-      color: #f4eadf;
-      text-shadow: 0 0 30px rgba(255,255,255,0.12);
-    }
-
-    .pageText p {
-      margin: 0;
-      font-size: 15px;
-      line-height: 1.8;
-      color: rgba(255,255,255,0.65);
-    }
-
-    .loading {
-      position: fixed;
-      inset: 0;
-      z-index: 10;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #050505;
-      color: #fff;
-      font-size: 14px;
-      letter-spacing: 1px;
-    }
-
-    .hide {
-      display: none;
-    }
-  </style>
-</head>
-<body>
-  <canvas id="c"></canvas>
-
-  <div class="overlay"></div>
-
-  <div class="page-title">GLASS ART · DARK LUXURY · FUTURE EXHIBITION</div>
-
-  <div class="pageText">
-    <h1 id="title">镜境</h1>
-    <p id="desc">AI 灵感 → 数字建模 → 3D 打印 → 手工烧制。<br>玻璃、光线与体积的艺术实验。</p>
-  </div>
-
-  <div class="handle" id="dots">
-    <div class="dot active"></div>
-    <div class="dot"></div>
-    <div class="dot"></div>
-    <div class="dot"></div>
-  </div>
-
-  <div class="ui">
-    鼠标左键拖动：旋转模型<br>
-    滚轮：切换页面<br>
-    触屏：上下滑动翻页
-  </div>
-
-  <div class="loading" id="loading">正在加载中，请稍等...</div>
-
-  <script src="three.min.js"></script>
-  <script src="GLTFLoader.js"></script>
-  <script src="OrbitControls.js"></script>
-
-  <script>
-    const canvas = document.getElementById("c");
-    const loading = document.getElementById("loading");
-    const titleEl = document.getElementById("title");
-    const descEl = document.getElementById("desc");
-    const dots = document.querySelectorAll(".dot");
-
-    let scene, camera, renderer, model, controls;
-    let currentPage = 0;
-    let autoRotate = true;
-
-    const pages = [
-      {
-        title: "镜境",
-        desc: "AI 灵感 → 数字建模 → 3D 打印 → 手工烧制。<br>玻璃、光线与体积的艺术实验。",
-        pos: [0, 0, 0],
-        scale: 1.0
-      },
-      {
-        title: "从数字到物质",
-        desc: "数字化造型、结构优化与材料实验，让虚拟形态在现实中获得新的光学生命。",
-        pos: [0.8, -0.05, 0],
-        scale: 0.75
-      },
-      {
-        title: "材料与光",
-        desc: "玻璃的透明、折射、反射与内部层次，构成未来感与展览感并存的视觉语言。",
-        pos: [-0.8, -0.05, 0],
-        scale: 0.75
-      },
-      {
-        title: "高泽乾",
-        desc: "南京艺术学院 · 玻璃艺术专业<br>Email: 3586822968@qq.com<br>WeChat: gaozeqian2006",
-        pos: [0, -0.5, 0],
-        scale: 0.28
-      }
-    ];
-
-    init();
-    animate();
-
-    function init() {
-      scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x050505);
-
-      camera = new THREE.PerspectiveCamera(
-        45,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        100
-      );
-      camera.position.set(0, 0, 3.2);
-
-      renderer = new THREE.WebGLRenderer({
-        canvas,
-        antialias: true,
-        alpha: true
-      });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      renderer.outputEncoding = THREE.sRGBEncoding;
-      renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.1;
-
-      const ambient = new THREE.AmbientLight(0xffffff, 0.8);
-      scene.add(ambient);
-
-      const keyLight = new THREE.DirectionalLight(0xffffff, 1.6);
-      keyLight.position.set(3, 5, 4);
-      scene.add(keyLight);
-
-      const rimLight = new THREE.DirectionalLight(0xffd8b0, 0.6);
-      rimLight.position.set(-4, 1, -3);
-      scene.add(rimLight);
-
-      const fill = new THREE.PointLight(0x87b8ff, 1.2, 20);
-      fill.position.set(0, 1.5, 2.5);
-      scene.add(fill);
-
-      const group = new THREE.Group();
-      scene.add(group);
-
-      const loader = new THREE.GLTFLoader();
-      loader.load(
-        "model.glb",
-        function(gltf) {
-          model = gltf.scene;
-          group.add(model);
-
-          const box = new THREE.Box3().setFromObject(model);
-          const size = new THREE.Vector3();
-          const center = new THREE.Vector3();
-          box.getSize(size);
-          box.getCenter(center);
-
-          model.position.sub(center);
-
-          const maxDim = Math.max(size.x, size.y, size.z);
-          const scale = 1.6 / maxDim;
-          model.scale.setScalar(scale);
-
-          model.traverse(function(o) {
-            if (o.isMesh) {
-              const color = o.material && o.material.color ? o.material.color.clone() : new THREE.Color(0xffffff);
-              o.material = new THREE.MeshPhysicalMaterial({
-                color: color,
-                metalness: 0.05,
-                roughness: 0.08,
-                transmission: 0.95,
-                thickness: 1.5,
-                ior: 1.45,
-                transparent: true,
-                opacity: 1.0,
-                envMapIntensity: 1.2,
-                clearcoat: 0.2,
-                clearcoatRoughness: 0.05
-              });
-            }
-          });
-
-          loading.classList.add("hide");
-        },
-        undefined,
-        function(err) {
-          console.error("模型加载失败：", err);
-          loading.innerHTML = "模型加载失败，请检查 model.glb 是否在同一文件夹";
-        }
-      );
-
-      if (THREE.OrbitControls) {
-        controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.enableZoom = false;
-        controls.enablePan = false;
-        controls.rotateSpeed = 0.5;
-      }
-
-      window.addEventListener("resize", onResize);
-
-      let startY = 0;
-      window.addEventListener("wheel", function(e) {
-        if (e.deltaY > 0) nextPage();
-        else prevPage();
-      }, { passive: true });
-
-      window.addEventListener("touchstart", function(e) {
-        startY = e.touches[0].clientY;
-      }, { passive: true });
-
-      window.addEventListener("touchend", function(e) {
-        const endY = e.changedTouches[0].clientY;
-        const delta = startY - endY;
-        if (Math.abs(delta) > 40) {
-          if (delta > 0) nextPage();
-          else prevPage();
-        }
-      }, { passive: true });
-    }
-
-    function applyPage(index) {
-      currentPage = index;
-      const p = pages[currentPage];
-
-      titleEl.innerHTML = p.title;
-      descEl.innerHTML = p.desc;
-
-      dots.forEach((dot, i) => {
-        dot.classList.toggle("active", i === currentPage);
-      });
-
-      if (model) {
-        model.position.set(p.pos[0], p.pos[1], p.pos[2]);
-        model.scale.setScalar(1);
-        const box = new THREE.Box3().setFromObject(model);
-        const size = new THREE.Vector3();
-        box.getSize(size);
-        const maxDim = Math.max(size.x, size.y, size.z);
-        const scale = p.scale * 1.6 / maxDim;
-        model.scale.setScalar(scale);
-      }
-
-      autoRotate = currentPage === 0;
-    }
-
-    function nextPage() {
-      if (currentPage < pages.length - 1) {
-        applyPage(currentPage + 1);
-      }
-    }
-
-    function prevPage() {
-      if (currentPage > 0) {
-        applyPage(currentPage - 1);
-      }
-    }
-
-    function animate() {
-      requestAnimationFrame(animate);
-
-      if (controls) controls.update();
-
-      if (model && autoRotate) {
-        model.rotation.y += 0.003;
-      }
-
-      renderer.render(scene, camera);
-    }
-
-    function onResize() {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    }
-
-    applyPage(0);
-  </script>
-</body>
-</html>
+// 渲染循环
+(function animate(){
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+})();
+</script> </body> </html>
