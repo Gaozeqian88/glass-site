@@ -1,178 +1,48 @@
-<!DOCTYPE html><html lang="zh">
+<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GAO ZEQIAN · CORE FORM</title><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500&family=Inter:wght@300&display=swap" rel="stylesheet"><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/RGBELoader.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js"></script><style>
-body{
-margin:0;
-background:#0a0a0a;
-color:#fff;
-font-family:"Inter";
-overflow-x:hidden;
-}
-
-/* 返回 */
-.back{
-position:fixed;
-top:30px;
-left:40px;
-z-index:10;
-cursor:pointer;
-opacity:.6;
-}
-.back:hover{opacity:1}
-
-/* 3D区域 */
-.hero{
-height:100vh;
-position:relative;
-}
-
-#viewer{
-width:100%;
-height:100%;
-}
-
-/* 标题 */
-.title{
-position:absolute;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-text-align:center;
-pointer-events:none;
-}
-
-.title h1{
-font-family:"Playfair Display";
-font-size:72px;
-letter-spacing:6px;
-}
-
-/* 内容 */
-.content{
-padding:120px 80px;
-max-width:900px;
-}
-
-.meta{
-margin-top:20px;
-color:#888;
-}
-
-.desc{
-margin-top:40px;
-line-height:1.9;
-color:#ccc;
-}
-</style></head><body><div class="back" onclick="history.back()">← BACK</div><section class="hero">
-<div id="viewer"></div><div class="title">
-<h1>CORE FORM</h1>
-</div>
-</section><section class="content">
-<h2>Core Form</h2>
-<div class="meta">2026 · Glass · Unique Piece</div><div class="desc">
-An exploration of translucency and structure,
-where material dissolves into light.Between fragility and tension,
-the form exists in a suspended state.
-
-</div>
-</section><script>
-const scene = new THREE.Scene();
-
-const camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.1, 1000);
-
-const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.outputEncoding = THREE.sRGBEncoding;
-renderer.physicallyCorrectLights = true;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.2;
-
-document.getElementById("viewer").appendChild(renderer.domElement);
-
-/* HDR环境（关键） */
-new THREE.RGBELoader()
-.setPath('https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/')
-.load('studio_small_03_1k.hdr', function(texture){
-texture.mapping = THREE.EquirectangularReflectionMapping;
-scene.environment = texture;
-});
-
-/* 控制器 */
-const controls = new THREE.OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.enableZoom = true;
-controls.enablePan = false;
-
-/* 灯光（柔和轮廓） */
-const light1 = new THREE.DirectionalLight(0xffffff, 1.2);
-light1.position.set(5,5,5);
-scene.add(light1);
-
-const light2 = new THREE.DirectionalLight(0xffffff, 0.6);
-light2.position.set(-5,3,-5);
-scene.add(light2);
-
-/* 加载模型 */
-const loader = new THREE.GLTFLoader();
-
-loader.load("glb格式.glb", function(gltf){
-
-const model = gltf.scene;
-
-/* ===== 核心1：真实居中（无视轴心） ===== */
-const box = new THREE.Box3().setFromObject(model);
-const center = box.getCenter(new THREE.Vector3());
-const size = box.getSize(new THREE.Vector3());
-
-model.position.sub(center);
-
-/* ===== 核心2：视觉微调（下沉一点更高级） ===== */
-model.position.y -= size.y * 0.08;
-
-/* ===== 核心3：自动缩放 ===== */
-const scale = 3 / size.length();
-model.scale.setScalar(scale);
-
-/* ===== 核心4：玻璃材质 ===== */
-model.traverse((child)=>{
-if(child.isMesh){
-child.material = new THREE.MeshPhysicalMaterial({
-color:0xffffff,
-metalness:0,
-roughness:0.05,
-transmission:1,
-thickness:2,
-ior:1.45,
-clearcoat:1,
-clearcoatRoughness:0,
-envMapIntensity:1.5
-});
-}
-});
-
-scene.add(model);
-
-/* 相机 */
-camera.position.set(0,0,5);
-
-/* 动画 */
-function animate(){
-requestAnimationFrame(animate);
-model.rotation.y += 0.002;
-controls.update();
-renderer.render(scene,camera);
-}
-animate();
-
-});
-
-/* 自适应 */
-window.addEventListener('resize',()=>{
-camera.aspect = window.innerWidth/window.innerHeight;
-camera.updateProjectionMatrix();
-renderer.setSize(window.innerWidth, window.innerHeight);
-});
-</script></body>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>作品集 — ZEQIAN GLASS</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="navbar glass">
+  <div class="brand-logo">
+    <img src="gaozeqian.jpg" alt="高泽乾" />
+    <span>ZEQIAN GLASS</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html">首页</a></li>
+    <li><a href="works.html" class="active">作品集</a></li>
+    <li><a href="about.html">关于ZEQIAN</a></li>
+  </ul>
+</nav>
+<main id="work-list">
+  <h1 class="page-title glass">GLASS ARTWORKS</h1>
+  <div class="works-grid">
+    <a class="glass work-card" href="detail.html?work=prism">
+      <img src="glass.png" alt="Prism Bloom">
+      <div>
+        <h2>Prism Bloom</h2>
+        <p>光谱三棱镜系列，空间与流动交错结构</p>
+      </div>
+    </a>
+    <a class="glass work-card" href="detail.html?work=crystal">
+      <img src="glass.png" alt="Crystal Vessel">
+      <div>
+        <h2>Crystal Vessel</h2>
+        <p>晶体器皿实验，重释玻璃的物性之美</p>
+      </div>
+    </a>
+    <a class="glass work-card" href="detail.html?work=liquid">
+      <img src="glass.png" alt="Liquid Memory">
+      <div>
+        <h2>Liquid Memory</h2>
+        <p>流体记忆，数字材料与情感的融合探索</p>
+      </div>
+    </a>
+  </div>
+</main>
+</body>
 </html>
