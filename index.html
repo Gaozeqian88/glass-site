@@ -1,221 +1,306 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>玻璃艺术作品集 — 高泽乾</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>玻璃艺术作品集</title>
   <style>
     :root{
-      --bg: #000;
-      --muted: rgba(255,255,255,0.55);
-      --white: #fff;
-      --gap: 72px;
-    }
-    html,body{
-      height:100%;
-      margin:0;
-      background:var(--bg);
-      color:var(--white);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      overflow:hidden; /* 我们自行为翻页控制滚动 */
+      --bg:#000;
+      --white:#fff;
+      --muted:rgba(255,255,255,0.58);
+      --line:rgba(255,255,255,0.12);
+      --ease:cubic-bezier(0.22,1,0.36,1);
     }
 
-    canvas#three-canvas{
+    *{
+      box-sizing:border-box;
+    }
+
+    html,body{
+      width:100%;
+      height:100%;
+      margin:0;
+      overflow:hidden;
+      background:var(--bg);
+      color:var(--white);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* Three.js 全屏画布 */
+    #three-canvas{
       position:fixed;
       inset:0;
       width:100%;
       height:100%;
       display:block;
-      z-index: 0;
+      z-index:0;
     }
 
+    /* 页面容器 */
     .pages{
       position:relative;
-      z-index: 2;
+      z-index:2;
       width:100%;
       height:100%;
-      overflow:visible;
-      pointer-events:auto;
+      overflow:hidden;
     }
 
     .pages-wrapper{
       width:100%;
-      height:400vh; /* 4 屏 */
-      transform: translateY(0);
-      transition: transform 0.8s cubic-bezier(.2,.9,.2,1);
-      will-change: transform;
+      height:400vh;
+      transform:translateY(0);
+      transition:transform 0.95s var(--ease);
+      will-change:transform;
     }
 
     .page{
-      box-sizing:border-box;
       width:100vw;
       height:100vh;
       display:flex;
       align-items:center;
       justify-content:center;
-      padding: calc(var(--gap)) 8vw;
-      color:var(--white);
-      user-select:none;
+      padding: clamp(24px, 6vw, 80px);
+      position:relative;
     }
 
-    .content {
-      display:flex;
+    .content{
       width:100%;
-      max-width:1300px;
-      gap:48px;
+      max-width:1400px;
+      display:flex;
       align-items:center;
       justify-content:space-between;
+      gap:48px;
     }
 
-    .col {
+    .col{
       flex:1;
       min-width:0;
     }
 
     .eyebrow{
-      color:var(--muted);
-      letter-spacing:2px;
-      font-size:13px;
-      margin-bottom:16px;
+      font-size:12px;
+      letter-spacing:2.4px;
       text-transform:uppercase;
+      color:var(--muted);
+      margin-bottom:18px;
     }
 
     h1{
-      margin:0;
+      margin:0 0 16px 0;
       font-weight:600;
-      font-size:48px;
-      line-height:1;
-      letter-spacing:0.2px;
-      margin-bottom:14px;
+      font-size:clamp(34px,4.8vw,64px);
+      line-height:1.02;
+      letter-spacing:-0.02em;
     }
 
-    p.lead{
+    p{
       margin:0;
       color:var(--muted);
       font-size:16px;
-      line-height:1.6;
-      max-width:560px;
+      line-height:1.8;
+      max-width: 620px;
     }
 
-    .meta {
+    .meta{
       color:var(--muted);
-      font-size:14px;
-      line-height:1.8;
+      font-size:15px;
+      line-height:2;
+      margin-top:18px;
     }
 
     .image-frame{
       width:100%;
-      max-width:540px;
-      border-radius:8px;
+      max-width:560px;
+      border-radius:10px;
       overflow:hidden;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-    .image-frame img{
-      width:100%;
-      height:auto;
-      display:block;
-      object-fit:cover;
+      box-shadow:0 20px 50px rgba(0,0,0,0.55);
+      border:1px solid rgba(255,255,255,0.06);
+      aspect-ratio: 4 / 3;
+      background:rgba(255,255,255,0.02);
     }
 
+    .image-frame img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    /* 特定页面布局 */
     #page-1 .content{
       justify-content:center;
-      align-items:center;
-    }
-    #page-1 .col{
-      max-width:1200px;
       text-align:center;
     }
+    #page-1 .col{
+      max-width:900px;
+    }
+
     #page-4 .content{
-      flex-direction:column;
+      justify-content:flex-start;
       align-items:flex-start;
     }
 
-    .hint {
-      position:fixed;
-      left:24px;
-      bottom:24px;
-      color:var(--muted);
-      font-size:13px;
-      z-index:3;
-      letter-spacing:1px;
+    #page-4 .col{
+      max-width:760px;
     }
 
-    @media (max-width:900px){
-      .content{ flex-direction:column; gap:28px; align-items:center; text-align:center; }
-      .col{ width:100%;}
-      .image-frame{ max-width:90vw; }
-      h1{ font-size:32px; }
-      .pages-wrapper{ transition-duration:0.6s; }
+    /* 细微装饰线 */
+    .divider{
+      width:100%;
+      height:1px;
+      background:var(--line);
+      margin:20px 0;
+    }
+
+    /* 页码提示 */
+    .hint{
+      position:fixed;
+      left:24px;
+      bottom:20px;
+      z-index:3;
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:1px;
+      user-select:none;
+      pointer-events:none;
+    }
+
+    .counter{
+      position:fixed;
+      right:24px;
+      bottom:20px;
+      z-index:3;
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:1px;
+      user-select:none;
+      pointer-events:none;
+    }
+
+    /* 响应式 */
+    @media (max-width: 900px){
+      .content{
+        flex-direction:column;
+        justify-content:center;
+        align-items:center;
+        text-align:center;
+        gap:28px;
+      }
+
+      .page{
+        padding: 24px;
+      }
+
+      .image-frame{
+        max-width: 92vw;
+      }
+
+      .meta{
+        font-size:14px;
+      }
+
+      .hint{
+        left:16px;
+        bottom:14px;
+      }
+
+      .counter{
+        right:16px;
+        bottom:14px;
+      }
+    }
+
+    /* iOS 安全区 */
+    @supports (padding: max(0px)) {
+      .hint{
+        bottom: max(20px, env(safe-area-inset-bottom));
+      }
+      .counter{
+        bottom: max(20px, env(safe-area-inset-bottom));
+      }
     }
   </style>
 </head>
 <body>
   <canvas id="three-canvas"></canvas>
 
-  <div class="pages" aria-hidden="false">
+  <div class="pages">
     <div class="pages-wrapper" id="pages-wrapper">
-      <section class="page" id="page-1" data-index="0" aria-label="封面">
+
+      <!-- 第1页 -->
+      <section class="page" id="page-1" data-index="0">
         <div class="content">
           <div class="col">
             <div class="eyebrow">Glass Art Collection</div>
-            <h1>镜·境 — 玻璃艺术</h1>
-            <p class="lead">AI → C4D → 3D打印 → 玻璃烧制。探索材料、光线与物态的边界。滑动翻页查看作品流程与资讯。</p>
+            <h1>镜境 Glass Sculpture</h1>
+            <p>一件由AI灵感、数字建模、3D打印与玻璃烧制共同完成的当代玻璃艺术作品。请向下滑动，进入作品的不同叙事界面。</p>
           </div>
         </div>
       </section>
 
-      <section class="page" id="page-2" data-index="1" aria-label="流程">
+      <!-- 第2页 -->
+      <section class="page" id="page-2" data-index="1">
         <div class="content">
-          <div class="col" style="flex: 0.6;">
-            <div class="eyebrow">流程</div>
+          <div class="col" style="flex:0.58;">
+            <div class="eyebrow">Process</div>
             <h1>从数字到物质</h1>
-            <p class="lead">
-              AI生成 → C4D建模 → 3D打印 → 玻璃熔制与烧制。在数字与工艺之间，保留偶然与手感。
-            </p>
+            <p>AI生成 → C4D建模 → 3D打印 → 玻璃熔制与烧制。作品在数字结构与手工工艺之间转换，最终呈现出光与材质的交界。</p>
+            <div class="divider"></div>
+            <div class="meta">
+              <div>Digital Form</div>
+              <div>3D Printing Prototype</div>
+              <div>Glass Firing & Finishing</div>
+            </div>
           </div>
-          <div class="col" style="flex:0.45;">
+          <div class="col" style="flex:0.42;">
             <div class="image-frame">
-              <img src="glass.png" alt="Glass artwork">
+              <img src="glass.png" alt="glass artwork">
             </div>
           </div>
         </div>
       </section>
 
-      <section class="page" id="page-3" data-index="2" aria-label="细节">
+      <!-- 第3页 -->
+      <section class="page" id="page-3" data-index="2">
         <div class="content">
-          <div class="col" style="flex:0.45;">
+          <div class="col" style="flex:0.42;">
             <div class="image-frame">
-              <img src="glass.png" alt="Detail image">
+              <img src="glass.png" alt="glass detail">
             </div>
           </div>
-          <div class="col" style="flex:0.6;">
-            <div class="eyebrow">材质与光</div>
+          <div class="col" style="flex:0.58;">
+            <div class="eyebrow">Material & Light</div>
             <h1>玻璃的表情</h1>
-            <p class="lead">
-              通过可控的厚度和折射，捕捉光线穿透与反射的细腻变化。每个切面都保留了时间与温度的痕迹。
-            </p>
+            <p>通过厚度、折射与通透性的变化，捕捉光线在表面与内部的流动。每一次烧制都让材料留下独一无二的时间痕迹。</p>
+            <div class="divider"></div>
+            <div class="meta">
+              <div>Transparency</div>
+              <div>Refraction</div>
+              <div>Reflection</div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section class="page" id="page-4" data-index="3" aria-label="关于">
+      <!-- 第4页 -->
+      <section class="page" id="page-4" data-index="3">
         <div class="content">
           <div class="col">
-            <div class="eyebrow">关于艺术家</div>
+            <div class="eyebrow">About Artist</div>
             <h1>高泽乾</h1>
-            <div class="meta" style="margin-top:18px;">
-              <div>南京艺术学院 玻璃艺术专业</div>
-              <div style="height:12px;"></div>
-              <div>Email: <a href="mailto:3586822968@qq.com" style="color:var(--white);text-decoration:none;">3586822968@qq.com</a></div>
-              <div>WeChat: gaozeqian2006</div>
-              <div>Douyin: 无聊艺术家</div>
-              <div>Tel: 18751982910</div>
+            <p>
+              南京艺术学院玻璃艺术专业<br/>
+              Email: 3586822968@qq.com<br/>
+              WeChat: gaozeqian2006<br/>
+              Douyin: 无聊艺术家<br/>
+              Tel: 18751982910
+            </p>
+            <div class="divider"></div>
+            <div class="meta">
+              这是一组关于材料、光线与工艺边界的作品探索。
             </div>
           </div>
         </div>
@@ -224,317 +309,357 @@
     </div>
   </div>
 
-  <div class="hint">滚轮 / 触摸滑动 翻页 · 按 ↑ ↓ 键 切换</div>
+  <div class="hint">滚轮 / 触摸滑动 翻页</div>
+  <div class="counter" id="counter">01 / 04</div>
 
-  <!-- 本地 Three.js 与加载器 -->
+  <!-- 本地资源 -->
   <script src="three.min.js"></script>
   <script src="GLTFLoader.js"></script>
 
   <script>
-  (function(){
-    // THREE 初始化
-    const canvas = document.getElementById('three-canvas');
-    const renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true, alpha: true});
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.outputEncoding = THREE.sRGBEncoding;
-    renderer.physicallyCorrectLights = true;
+    (() => {
+      const canvas = document.getElementById('three-canvas');
+      const pagesWrapper = document.getElementById('pages-wrapper');
+      const counter = document.getElementById('counter');
 
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
-
-    const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 200);
-    camera.position.set(0, 0.05, 3.5);
-
-    const hemi = new THREE.HemisphereLight(0xffffff, 0x222222, 0.6);
-    scene.add(hemi);
-    const dir = new THREE.DirectionalLight(0xffffff, 1.2);
-    dir.position.set(5, 10, 4);
-    scene.add(dir);
-    const rim = new THREE.PointLight(0xffffff, 0.18);
-    rim.position.set(-6, -4, -3);
-    scene.add(rim);
-
-    const modelGroup = new THREE.Group();
-    scene.add(modelGroup);
-
-    function createGlassMaterial(){
-      return new THREE.MeshPhysicalMaterial({
-        color: new THREE.Color(0xffffff),
-        metalness: 0,
-        roughness: 0.05,
-        transmission: 0.95,
-        thickness: 1.5,
-        ior: 1.48,
-        reflectivity: 0.6,
-        clearcoat: 0.1,
-        clearcoatRoughness: 0,
-        transparent: true,
-        opacity: 1.0,
-        side: THREE.DoubleSide,
+      // ===== Three.js 初始化 =====
+      const renderer = new THREE.WebGLRenderer({
+        canvas,
+        antialias: true,
+        alpha: true
       });
-    }
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.physicallyCorrectLights = true;
+      renderer.outputEncoding = THREE.sRGBEncoding;
 
-    const pmremGenerator = new THREE.PMREMGenerator(renderer);
-    pmremGenerator.compileEquirectangularShader();
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x000000);
 
-    function makeEnvMap(){
-      const size = 1024;
-      const cvs = document.createElement('canvas');
-      cvs.width = size;
-      cvs.height = size / 2;
-      const ctx = cvs.getContext('2d');
-      const grad = ctx.createLinearGradient(0,0,cvs.width,cvs.height);
-      grad.addColorStop(0, '#ffffff');
-      grad.addColorStop(0.5, '#bbbbcc');
-      grad.addColorStop(1, '#111217');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0,0,cvs.width,cvs.height);
-      const tex = new THREE.Texture(cvs);
-      tex.needsUpdate = true;
-      const env = pmremGenerator.fromEquirectangular(tex).texture;
-      return env;
-    }
-    const envMap = makeEnvMap();
+      const camera = new THREE.PerspectiveCamera(
+        40,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        200
+      );
+      camera.position.set(0, 0, 3.3);
 
-    let modelRoot = null;
-    const loader = new THREE.GLTFLoader();
-    loader.load('model.glb', function(gltf){
-      modelRoot = gltf.scene || gltf.scenes[0];
-      // 标准化尺寸
-      const box = new THREE.Box3().setFromObject(modelRoot);
-      const size = new THREE.Vector3();
-      box.getSize(size);
-      const maxDim = Math.max(size.x, size.y, size.z) || 1;
-      const scale = 1.6 / maxDim;
-      modelRoot.scale.setScalar(scale);
-      const center = new THREE.Vector3();
-      box.getCenter(center);
-      modelRoot.position.sub(center.multiplyScalar(scale));
+      // 光照
+      const hemi = new THREE.HemisphereLight(0xffffff, 0x111111, 0.75);
+      scene.add(hemi);
 
-      modelRoot.traverse((o) => {
-        if (o.isMesh){
-          const glassMat = createGlassMaterial();
-          if (o.material){
-            if (o.material.map) glassMat.map = o.material.map;
-            else if (o.material.color) glassMat.color = o.material.color.clone();
+      const keyLight = new THREE.DirectionalLight(0xffffff, 1.5);
+      keyLight.position.set(5, 8, 6);
+      scene.add(keyLight);
+
+      const fillLight = new THREE.DirectionalLight(0x88aaff, 0.35);
+      fillLight.position.set(-4, 2, 4);
+      scene.add(fillLight);
+
+      const rimLight = new THREE.PointLight(0xffffff, 0.25, 20);
+      rimLight.position.set(-5, -3, -2);
+      scene.add(rimLight);
+
+      // 模型容器
+      const modelGroup = new THREE.Group();
+      scene.add(modelGroup);
+
+      let modelRoot = null;
+
+      // PMREM 处理环境反射
+      const pmremGenerator = new THREE.PMREMGenerator(renderer);
+      pmremGenerator.compileEquirectangularShader();
+
+      function createEnvMap() {
+        const size = 512;
+        const cvs = document.createElement('canvas');
+        cvs.width = size;
+        cvs.height = size / 2;
+        const ctx = cvs.getContext('2d');
+
+        const grad = ctx.createLinearGradient(0, 0, 0, cvs.height);
+        grad.addColorStop(0, '#ffffff');
+        grad.addColorStop(0.4, '#bbbccc');
+        grad.addColorStop(1, '#0a0a0a');
+
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, cvs.width, cvs.height);
+
+        const tex = new THREE.CanvasTexture(cvs);
+        tex.needsUpdate = true;
+        tex.mapping = THREE.EquirectangularReflectionMapping;
+
+        const envMap = pmremGenerator.fromEquirectangular(tex).texture;
+        tex.dispose();
+        return envMap;
+      }
+
+      const envMap = createEnvMap();
+
+      function createGlassMaterial() {
+        return new THREE.MeshPhysicalMaterial({
+          color: 0xffffff,
+          metalness: 0,
+          roughness: 0.04,
+          transmission: 0.97,
+          thickness: 1.6,
+          ior: 1.48,
+          reflectivity: 0.55,
+          transparent: true,
+          opacity: 1,
+          clearcoat: 0.1,
+          clearcoatRoughness: 0,
+          side: THREE.DoubleSide,
+          envMap: envMap,
+          envMapIntensity: 1.15
+        });
+      }
+
+      // 加载本地 GLB
+      const loader = new THREE.GLTFLoader();
+      loader.load(
+        'model.glb',
+        (gltf) => {
+          modelRoot = gltf.scene;
+          modelGroup.add(modelRoot);
+
+          // 居中和缩放模型
+          const box = new THREE.Box3().setFromObject(modelRoot);
+          const size = new THREE.Vector3();
+          box.getSize(size);
+          const center = new THREE.Vector3();
+          box.getCenter(center);
+
+          const maxDim = Math.max(size.x, size.y, size.z);
+          const scale = 1.6 / (maxDim || 1);
+          modelRoot.scale.setScalar(scale);
+
+          modelRoot.position.sub(center.multiplyScalar(scale));
+
+          // 替换为玻璃材质
+          modelRoot.traverse((obj) => {
+            if (obj.isMesh) {
+              const mat = createGlassMaterial();
+              if (obj.material && obj.material.map) {
+                mat.map = obj.material.map;
+              }
+              if (obj.material && obj.material.color) {
+                mat.color = obj.material.color.clone();
+              }
+              obj.material = mat;
+              obj.castShadow = true;
+              obj.receiveShadow = true;
+            }
+          });
+
+          applyStateInstant(currentPage);
+        },
+        undefined,
+        (err) => {
+          console.error('模型加载失败：', err);
+          alert('model.glb 加载失败，请确认文件路径与命名正确。');
+        }
+      );
+
+      // ===== 页面状态定义 =====
+      const pageStates = [
+        {
+          camPos: new THREE.Vector3(0, 0.05, 3.1),
+          lookAt: new THREE.Vector3(0, 0, 0),
+          modelPos: new THREE.Vector3(0, 0, 0),
+          modelScale: 1.15,
+          autoRotate: true
+        },
+        {
+          camPos: new THREE.Vector3(0.75, 0.08, 3.7),
+          lookAt: new THREE.Vector3(0.45, 0, 0),
+          modelPos: new THREE.Vector3(0.85, -0.05, 0),
+          modelScale: 0.72,
+          autoRotate: false
+        },
+        {
+          camPos: new THREE.Vector3(-0.75, 0.08, 3.7),
+          lookAt: new THREE.Vector3(-0.45, 0, 0),
+          modelPos: new THREE.Vector3(-0.85, -0.05, 0),
+          modelScale: 0.72,
+          autoRotate: false
+        },
+        {
+          camPos: new THREE.Vector3(0, 0.12, 4.6),
+          lookAt: new THREE.Vector3(0, 0, 0),
+          modelPos: new THREE.Vector3(0, -0.55, 0),
+          modelScale: 0.28,
+          autoRotate: false
+        }
+      ];
+
+      const totalPages = pageStates.length;
+      let currentPage = 0;
+      let isAnimating = false;
+      let lastWheelTime = 0;
+
+      const currentLookAt = new THREE.Vector3(0, 0, 0);
+
+      function updateCounter() {
+        counter.textContent = `${String(currentPage + 1).padStart(2, '0')} / ${String(totalPages).padStart(2, '0')}`;
+      }
+
+      function updatePagesWrapper(index) {
+        pagesWrapper.style.transform = `translateY(${-index * window.innerHeight}px)`;
+      }
+
+      function applyStateInstant(index) {
+        const state = pageStates[index];
+        camera.position.copy(state.camPos);
+        currentLookAt.copy(state.lookAt);
+
+        if (modelRoot) {
+          modelRoot.position.copy(state.modelPos);
+          modelRoot.scale.setScalar(state.modelScale);
+        }
+
+        updateCounter();
+        updatePagesWrapper(index);
+      }
+
+      function animateToState(target, duration = 900) {
+        if (!modelRoot) return;
+
+        const startTime = performance.now();
+        const startCam = camera.position.clone();
+        const startLook = currentLookAt.clone();
+        const startPos = modelRoot.position.clone();
+        const startScale = modelRoot.scale.clone();
+
+        function easeOutCubic(t) {
+          return 1 - Math.pow(1 - t, 3);
+        }
+
+        function tick(now) {
+          const t = Math.min(1, (now - startTime) / duration);
+          const e = easeOutCubic(t);
+
+          camera.position.lerpVectors(startCam, target.camPos, e);
+          currentLookAt.lerpVectors(startLook, target.lookAt, e);
+
+          modelRoot.position.lerpVectors(startPos, target.modelPos, e);
+
+          const s = startScale.x + (target.modelScale - startScale.x) * e;
+          modelRoot.scale.setScalar(s);
+
+          if (t < 1) {
+            requestAnimationFrame(tick);
+          } else {
+            isAnimating = false;
           }
-          glassMat.envMap = envMap;
-          glassMat.envMapIntensity = 1.0;
-          o.material = glassMat;
-          o.castShadow = true;
-          o.receiveShadow = true;
         }
+
+        requestAnimationFrame(tick);
+      }
+
+      function goToPage(index) {
+        if (isAnimating) return;
+        if (index < 0 || index >= totalPages || index === currentPage) return;
+
+        isAnimating = true;
+        currentPage = index;
+        updateCounter();
+        updatePagesWrapper(index);
+        animateToState(pageStates[index]);
+      }
+
+      // ===== 渲染循环 =====
+      let lastTime = performance.now();
+      const autoRotateSpeed = 0.18;
+
+      function render(now) {
+        const dt = (now - lastTime) / 1000;
+        lastTime = now;
+
+        if (modelRoot && pageStates[currentPage].autoRotate) {
+          modelRoot.rotation.y += autoRotateSpeed * dt;
+        }
+
+        camera.lookAt(currentLookAt);
+        renderer.render(scene, camera);
+        requestAnimationFrame(render);
+      }
+
+      requestAnimationFrame(render);
+
+      // ===== 交互：滚轮翻页 =====
+      window.addEventListener('wheel', (e) => {
+        e.preventDefault();
+
+        const now = performance.now();
+        if (now - lastWheelTime < 500) return;
+
+        if (e.deltaY > 0) {
+          goToPage(currentPage + 1);
+        } else {
+          goToPage(currentPage - 1);
+        }
+
+        lastWheelTime = now;
+      }, { passive: false });
+
+      // ===== 交互：手机触摸滑动翻页 =====
+      let touchStartY = 0;
+      let touchStartTime = 0;
+
+      window.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+          touchStartY = e.touches[0].clientY;
+          touchStartTime = performance.now();
+        }
+      }, { passive: true });
+
+      window.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 1) {
+          e.preventDefault();
+        }
+      }, { passive: false });
+
+      window.addEventListener('touchend', (e) => {
+        const touch = e.changedTouches[0];
+        if (!touch) return;
+
+        const dy = touchStartY - touch.clientY;
+        const dt = performance.now() - touchStartTime;
+
+        if (Math.abs(dy) > 50 && dt < 1000) {
+          if (dy > 0) {
+            goToPage(currentPage + 1);
+          } else {
+            goToPage(currentPage - 1);
+          }
+        }
+      }, { passive: true });
+
+      // ===== 键盘支持 =====
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown' || e.key === 'PageDown') goToPage(currentPage + 1);
+        if (e.key === 'ArrowUp' || e.key === 'PageUp') goToPage(currentPage - 1);
       });
 
-      modelGroup.add(modelRoot);
-      // 载入后立刻同步到当前页面状态
-      applyStateInstant(currentPage);
-    }, undefined, function(err){
-      console.error('GLTF load error', err);
-      alert('加载 model.glb 错误，请确认文件在同一目录。详见控制台。');
-    });
+      // ===== 自适应尺寸 =====
+      window.addEventListener('resize', () => {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        renderer.setSize(w, h);
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
 
-    const totalPages = 4;
-    let currentPage = 0;
-    let isAnimating = false;
+        updatePagesWrapper(currentPage);
+      });
 
-    const pageStates = [
-      {
-        camPos: new THREE.Vector3(0, 0.05, 3.2),
-        camTarget: new THREE.Vector3(0, 0, 0),
-        modelPos: new THREE.Vector3(0, -0.05, 0),
-        modelScale: new THREE.Vector3(1,1,1),
-        autoRotate: true
-      },
-      {
-        camPos: new THREE.Vector3(0.6, 0.1, 3.8),
-        camTarget: new THREE.Vector3(0.6, 0, 0),
-        modelPos: new THREE.Vector3(0.8, -0.05, 0.0),
-        modelScale: new THREE.Vector3(0.6,0.6,0.6),
-        autoRotate: false
-      },
-      {
-        camPos: new THREE.Vector3(-0.6, 0.1, 3.8),
-        camTarget: new THREE.Vector3(-0.6, 0, 0),
-        modelPos: new THREE.Vector3(-0.8, -0.05, 0.0),
-        modelScale: new THREE.Vector3(0.65,0.65,0.65),
-        autoRotate: false
-      },
-      {
-        camPos: new THREE.Vector3(0, 0.15, 4.6),
-        camTarget: new THREE.Vector3(0, 0, 0),
-        modelPos: new THREE.Vector3(0, -0.4, 0),
-        modelScale: new THREE.Vector3(0.28,0.28,0.28),
-        autoRotate: false
-      }
-    ];
+      // 初始状态
+      updateCounter();
+      applyStateInstant(0);
 
-    // 当前相机 lookAt（用于平滑插值）
-    const currentLookAt = new THREE.Vector3(0,0,0);
-
-    // 平滑插值动画（相机与模型）
-    function animateToState(targetState, duration = 900, onComplete){
-      const startTime = performance.now();
-      const startCamPos = camera.position.clone();
-      const startLookAt = currentLookAt.clone();
-      const endCamPos = targetState.camPos.clone();
-      const endLookAt = targetState.camTarget.clone();
-
-      const hasModel = !!modelRoot;
-      const startModelPos = hasModel ? modelRoot.position.clone() : null;
-      const endModelPos = targetState.modelPos.clone();
-      const startScale = hasModel ? modelRoot.scale.clone() : null;
-      const endScale = targetState.modelScale.clone();
-
-      function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
-
-      function frame(now){
-        const t = Math.min(1, (now - startTime) / duration);
-        const e = easeOutCubic(t);
-        camera.position.lerpVectors(startCamPos, endCamPos, e);
-        currentLookAt.lerpVectors(startLookAt, endLookAt, e);
-        if (hasModel){
-          modelRoot.position.lerpVectors(startModelPos, endModelPos, e);
-          modelRoot.scale.set(
-            startScale.x + (endScale.x - startScale.x) * e,
-            startScale.y + (endScale.y - startScale.y) * e,
-            startScale.z + (endScale.z - startScale.z) * e
-          );
-        }
-        if (t < 1) requestAnimationFrame(frame);
-        else {
-          if (onComplete) onComplete();
-        }
-      }
-      requestAnimationFrame(frame);
-    }
-
-    // 自动微旋转
-    const autoRotateSpeed = 0.16; // rad/s
-    let lastTime = performance.now();
-    function renderLoop(now){
-      now = now || performance.now();
-      const dt = (now - lastTime) / 1000;
-      lastTime = now;
-
-      if (modelRoot && pageStates[currentPage].autoRotate){
-        modelRoot.rotation.y += autoRotateSpeed * dt;
-      }
-
-      camera.lookAt(currentLookAt);
-      renderer.render(scene, camera);
-      requestAnimationFrame(renderLoop);
-    }
-    requestAnimationFrame(renderLoop);
-
-    function onResize(){
-      const w = window.innerWidth, h = window.innerHeight;
-      renderer.setSize(w,h);
-      camera.aspect = w/h;
-      camera.updateProjectionMatrix();
-    }
-    window.addEventListener('resize', onResize, {passive:true});
-
-    // DOM 翻页（pages-wrapper）
-    const pagesWrapper = document.getElementById('pages-wrapper');
-    function updatePagesWrapper(index){
-      const y = - index * window.innerHeight;
-      pagesWrapper.style.transform = `translateY(${y}px)`;
-    }
-
-    // 在切换结束时释放锁（监听 transform transitionend）
-    pagesWrapper.addEventListener('transitionend', (ev) => {
-      if (ev.propertyName === 'transform'){
-        // 切换结束后延迟一点时间再解除锁，提升体验与稳定性
-        setTimeout(()=>{ isAnimating = false; }, 60);
-      }
-    });
-
-    function goToPage(index){
-      if (index < 0) index = 0;
-      if (index >= totalPages) index = totalPages - 1;
-      if (isAnimating || index === currentPage) return;
-      isAnimating = true;
-      currentPage = index;
-      updatePagesWrapper(index);
-      animateToState(pageStates[index], 900);
-    }
-
-    // 立即应用状态（无动画）
-    function applyStateInstant(index){
-      const s = pageStates[index];
-      camera.position.copy(s.camPos);
-      currentLookAt.copy(s.camTarget);
-      if (modelRoot){
-        modelRoot.position.copy(s.modelPos);
-        modelRoot.scale.copy(s.modelScale);
-      }
-    }
-
-    // 初始化第一页位置
-    applyStateInstant(0);
-
-    // 滚轮节流：基于时间与阈值
-    let lastWheelTime = 0;
-    window.addEventListener('wheel', (e) => {
-      // 不阻止默认（避免在某些平台上交互被完全禁用），但我们自行处理翻页
-      const now = performance.now();
-      if (now - lastWheelTime < 400) return; // 节流
-      const dy = e.deltaY;
-      if (Math.abs(dy) < 20) return;
-      if (dy > 0){
-        goToPage(Math.min(totalPages - 1, currentPage + 1));
-      } else {
-        goToPage(Math.max(0, currentPage - 1));
-      }
-      lastWheelTime = now;
-    }, {passive:true});
-
-    // 触摸手势
-    let touchStartY = null;
-    let touchLastTime = 0;
-    window.addEventListener('touchstart', (e) => {
-      if (e.touches && e.touches.length === 1){
-        touchStartY = e.touches[0].clientY;
-      }
-    }, {passive:true});
-    window.addEventListener('touchmove', (e) => {
-      // 阻止默认滚动以得到流畅体验（仅当垂直滑动明显时）
-      if (e.touches && e.touches.length === 1 && touchStartY !== null){
-        const dy = Math.abs(e.touches[0].clientY - touchStartY);
-        if (dy > 10) e.preventDefault();
-      }
-    }, {passive:false});
-    window.addEventListener('touchend', (e) => {
-      if (touchStartY === null) return;
-      const touchEndY = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientY : null;
-      if (touchEndY === null) { touchStartY = null; return; }
-      const dy = touchStartY - touchEndY;
-      const threshold = Math.max(40, window.innerHeight * 0.08);
-      const now = performance.now();
-      if (now - touchLastTime < 400){ touchStartY = null; return; }
-      if (Math.abs(dy) > threshold){
-        if (dy > 0) goToPage(Math.min(totalPages - 1, currentPage + 1));
-        else goToPage(Math.max(0, currentPage - 1));
-        touchLastTime = now;
-      }
-      touchStartY = null;
-    }, {passive:false});
-
-    // 键盘支持
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowDown' || e.key === 'PageDown'){
-        goToPage(Math.min(totalPages-1, currentPage + 1));
-      } else if (e.key === 'ArrowUp' || e.key === 'PageUp'){
-        goToPage(Math.max(0, currentPage - 1));
-      }
-    });
-
-    // 防止图片拖动
-    document.addEventListener('dragstart', (e) => e.preventDefault());
-
-  })();
+      // 图片防拖拽
+      document.addEventListener('dragstart', (e) => e.preventDefault());
+    })();
   </script>
 </body>
 </html>
