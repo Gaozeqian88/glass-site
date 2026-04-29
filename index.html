@@ -3,172 +3,404 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Glass Site</title>
+  <title>Glass Art Portfolio</title>
+  <meta name="description" content="玻璃艺术作品集网站" />
   <style>
-    html, body {
-      margin: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: #111;
-      font-family: Arial, Helvetica, sans-serif;
+    :root{
+      --bg1:#050816;
+      --bg2:#0b1025;
+      --glass:rgba(255,255,255,.10);
+      --glass2:rgba(255,255,255,.16);
+      --line:rgba(255,255,255,.18);
+      --text:#f5f7ff;
+      --muted:#b8c2e0;
+      --accent:#76d7ff;
+      --accent2:#b58cff;
     }
-    #container {
-      position: fixed;
-      inset: 0;
+
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;
+      width:100%;
+      height:100%;
+      overflow:hidden;
+      font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(118,215,255,.18), transparent 35%),
+        radial-gradient(circle at top right, rgba(181,140,255,.16), transparent 28%),
+        linear-gradient(135deg,var(--bg1),var(--bg2));
     }
-    #loading {
-      position: fixed;
-      left: 16px;
-      top: 16px;
-      color: #fff;
-      background: rgba(0,0,0,0.55);
-      padding: 10px 14px;
-      border-radius: 8px;
-      z-index: 10;
-      font-size: 14px;
-      line-height: 1.4;
-      max-width: calc(100vw - 32px);
-      white-space: pre-wrap;
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background:
+        linear-gradient(120deg, rgba(255,255,255,.05), transparent 30%, rgba(255,255,255,.03));
+      pointer-events:none;
+      mix-blend-mode:screen;
     }
-    canvas {
-      display: block;
+
+    #app{
+      position:relative;
+      width:100%;
+      height:100%;
+    }
+
+    #three-canvas{
+      display:block;
+      width:100%;
+      height:100%;
+    }
+
+    .overlay{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:28px;
+      gap:24px;
+    }
+
+    .panel{
+      pointer-events:auto;
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+      background:linear-gradient(180deg, var(--glass), rgba(255,255,255,.06));
+      border:1px solid var(--line);
+      box-shadow:0 20px 60px rgba(0,0,0,.35);
+      border-radius:24px;
+    }
+
+    .left-panel{
+      width:min(430px, 92vw);
+      padding:28px;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-size:12px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:var(--accent);
+      margin-bottom:18px;
+    }
+
+    .badge::before{
+      content:"";
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:var(--accent);
+      box-shadow:0 0 16px var(--accent);
+    }
+
+    h1{
+      margin:0 0 12px;
+      font-size:clamp(34px, 5vw, 58px);
+      line-height:1.04;
+      letter-spacing:-.03em;
+    }
+
+    .subtitle{
+      margin:0 0 20px;
+      font-size:15px;
+      line-height:1.8;
+      color:var(--muted);
+      max-width:36ch;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:12px;
+      margin-top:22px;
+    }
+
+    .stat{
+      padding:14px 16px;
+      border-radius:18px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+    }
+
+    .stat b{
+      display:block;
+      font-size:18px;
+      margin-bottom:4px;
+      color:#fff;
+    }
+
+    .stat span{
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .hint{
+      margin-top:18px;
+      font-size:13px;
+      color:rgba(255,255,255,.72);
+      line-height:1.7;
+    }
+
+    .right-panel{
+      width:min(260px, 88vw);
+      padding:18px;
+      align-self:flex-end;
+    }
+
+    .mini-title{
+      font-size:13px;
+      color:var(--muted);
+      margin-bottom:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+
+    .works{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .work{
+      padding:14px 14px;
+      border-radius:16px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+    }
+
+    .work strong{
+      display:block;
+      font-size:14px;
+      margin-bottom:6px;
+    }
+
+    .work p{
+      margin:0;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.6;
+    }
+
+    .loading{
+      position:fixed;
+      left:50%;
+      bottom:22px;
+      transform:translateX(-50%);
+      padding:10px 16px;
+      border-radius:999px;
+      background:rgba(0,0,0,.35);
+      border:1px solid rgba(255,255,255,.15);
+      color:#fff;
+      font-size:13px;
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
+    }
+
+    @media (max-width: 900px){
+      .overlay{
+        flex-direction:column;
+        justify-content:space-between;
+        align-items:stretch;
+      }
+      .right-panel{
+        align-self:stretch;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="container"></div>
-  <div id="loading">正在加载中，请稍等...</div>
+  <div id="app">
+    <canvas id="three-canvas"></canvas>
+
+    <div class="overlay">
+      <section class="panel left-panel">
+        <div class="badge">Glass Art Portfolio</div>
+        <h1>玻璃艺术<br>作品集网站</h1>
+        <p class="subtitle">
+          以透明、折射、光影和材质感打造的现代作品展示空间。
+          你可以在这里查看 3D 玻璃作品、雕塑装置与艺术视觉呈现。
+        </p>
+
+        <div class="stats">
+          <div class="stat">
+            <b>03</b>
+            <span>精选作品系列</span>
+          </div>
+          <div class="stat">
+            <b>360°</b>
+            <span>拖拽查看模型</span>
+          </div>
+          <div class="stat">
+            <b>Glass</b>
+            <span>透明材质视觉</span>
+          </div>
+          <div class="stat">
+            <b>WebGL</b>
+            <span>实时渲染支持</span>
+          </div>
+        </div>
+
+        <div class="hint">
+          鼠标拖动旋转，滚轮缩放。<br>
+          页面会优先加载同目录下的 <code>model.glb</code>。
+        </div>
+      </section>
+
+      <section class="panel right-panel">
+        <div class="mini-title">作品列表</div>
+        <div class="works">
+          <div class="work">
+            <strong>Prism Bloom</strong>
+            <p>灵感来自光穿过玻璃花瓣后的色散效果。</p>
+          </div>
+          <div class="work">
+            <strong>Crystal Vessel</strong>
+            <p>强调曲面、厚度和反射的空间装置。</p>
+          </div>
+          <div class="work">
+            <strong>Liquid Memory</strong>
+            <p>表现玻璃的流动感与时间痕迹。</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="loading" id="loading">正在加载模型...</div>
+  </div>
 
   <script type="module">
     import * as THREE from 'https://unpkg.com/three@0.150.1/build/three.module.js';
     import { OrbitControls } from 'https://unpkg.com/three@0.150.1/examples/jsm/controls/OrbitControls.js';
     import { GLTFLoader } from 'https://unpkg.com/three@0.150.1/examples/jsm/loaders/GLTFLoader.js';
 
-    const loadingEl = document.getElementById('loading');
-    const container = document.getElementById('container');
+    const canvas = document.getElementById('three-canvas');
+    const loading = document.getElementById('loading');
 
-    function setLoading(text) {
-      loadingEl.textContent = text;
-      console.log(text);
-    }
-
-    // 场景
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x111111);
+    scene.background = new THREE.Color(0x050816);
 
-    // 相机
-    const camera = new THREE.PerspectiveCamera(
-      50,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      1000
-    );
-    camera.position.set(0, 1.2, 3);
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 1.2, 4);
 
-    // 渲染器
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      alpha: true
+    });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    container.appendChild(renderer.domElement);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-    // 控制器
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
+    controls.target.set(0, 0.6, 0);
 
-    // 灯光
-    const ambient = new THREE.AmbientLight(0xffffff, 1.6);
+    const ambient = new THREE.AmbientLight(0xffffff, 1.8);
     scene.add(ambient);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 2.0);
-    dirLight.position.set(5, 10, 5);
-    scene.add(dirLight);
+    const dir1 = new THREE.DirectionalLight(0xffffff, 2.2);
+    dir1.position.set(4, 6, 4);
+    scene.add(dir1);
 
-    // 地面参考（可删）
-    const grid = new THREE.GridHelper(10, 10, 0x444444, 0x222222);
-    scene.add(grid);
+    const dir2 = new THREE.DirectionalLight(0x8fd4ff, 1.5);
+    dir2.position.set(-4, 2, -3);
+    scene.add(dir2);
 
-    // 模型加载
+    const hemi = new THREE.HemisphereLight(0x99ccff, 0x110a24, 1.2);
+    scene.add(hemi);
+
+    const group = new THREE.Group();
+    scene.add(group);
+
     const loader = new GLTFLoader();
-
-    // 你的本地模型文件，必须和 index.html 在同一目录
     const localModel = './model.glb';
 
-    // 在线备用模型（用于测试）
-    const fallbackModel = 'https://rawcdn.githack.com/KhronosGroup/glTF-Sample-Models/master/2.0/Box/glTF-Binary/Box.glb';
-
-    function centerAndScale(object) {
+    function centerModel(object) {
       const box = new THREE.Box3().setFromObject(object);
       const size = new THREE.Vector3();
       const center = new THREE.Vector3();
       box.getSize(size);
       box.getCenter(center);
 
-      object.position.x += (object.position.x - center.x);
-      object.position.y += (object.position.y - center.y);
-      object.position.z += (object.position.z - center.z);
+      object.position.sub(center);
 
       const maxAxis = Math.max(size.x, size.y, size.z);
       if (maxAxis > 0) {
-        const scale = 1.5 / maxAxis;
+        const scale = 1.8 / maxAxis;
         object.scale.setScalar(scale);
       }
     }
 
-    function loadModel(url, label, onDone, onFail) {
-      setLoading(`正在加载 ${label} ...`);
-      loader.load(
-        url,
-        (gltf) => {
-          const model = gltf.scene;
-          centerAndScale(model);
-          scene.add(model);
-          setLoading(`${label} 加载成功`);
-          onDone && onDone(model);
-        },
-        (xhr) => {
-          if (xhr.total) {
-            const p = Math.round((xhr.loaded / xhr.total) * 100);
-            setLoading(`正在加载 ${label} ... ${p}%`);
-          } else {
-            setLoading(`正在加载 ${label} ...`);
-          }
-        },
-        (err) => {
-          console.error(`加载失败: ${label}`, err);
-          onFail && onFail(err);
-        }
-      );
+    function addFallbackGlass() {
+      loading.textContent = 'model.glb 未找到，已启用玻璃示意模型';
+      const geometry = new THREE.TorusKnotGeometry(0.9, 0.28, 200, 32);
+      const material = new THREE.MeshPhysicalMaterial({
+        color: 0xbfdfff,
+        metalness: 0.0,
+        roughness: 0.05,
+        transmission: 1.0,
+        transparent: true,
+        opacity: 1.0,
+        thickness: 0.8,
+        ior: 1.45,
+        envMapIntensity: 1.8,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.03
+      });
+      const mesh = new THREE.Mesh(geometry, material);
+      group.add(mesh);
+      loading.textContent = '模型已加载';
     }
 
-    // 先加载本地 model.glb，失败就加载备用在线模型
-    loadModel(
+    loader.load(
       localModel,
-      '本地模型 model.glb',
-      () => {},
-      () => {
-        setLoading('本地 model.glb 加载失败，正在尝试在线示例模型...');
-        loadModel(
-          fallbackModel,
-          '在线示例模型',
-          () => {},
-          (err) => {
-            setLoading('模型加载失败，请打开控制台查看错误');
-            console.error('本地和在线模型都失败了', err);
-          }
-        );
+      (gltf) => {
+        const model = gltf.scene;
+        centerModel(model);
+        group.add(model);
+        loading.textContent = 'model.glb 加载成功';
+      },
+      (xhr) => {
+        if (xhr.total) {
+          const percent = Math.round(xhr.loaded / xhr.total * 100);
+          loading.textContent = `正在加载模型... ${percent}%`;
+        }
+      },
+      (err) => {
+        console.warn('本地 model.glb 加载失败，改用示意模型', err);
+        addFallbackGlass();
       }
     );
 
-    // 旋转动画
+    const bgStars = new THREE.BufferGeometry();
+    const starCount = 500;
+    const positions = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount; i++) {
+      positions[i * 3 + 0] = (Math.random() - 0.5) * 40;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 30;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 40;
+    }
+    bgStars.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.03 });
+    const stars = new THREE.Points(bgStars, starMat);
+    scene.add(stars);
+
     function animate() {
       requestAnimationFrame(animate);
       controls.update();
+      stars.rotation.y += 0.0005;
+      group.rotation.y += 0.003;
       renderer.render(scene, camera);
     }
     animate();
 
-    // 窗口大小变化
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
